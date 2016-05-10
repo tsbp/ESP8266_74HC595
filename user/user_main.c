@@ -12,6 +12,7 @@
 #include "driver/wifi.h"
 #include "driver/gpio16.h"
 #include "driver/LCD_GRAPHIC.h"
+#include "driver/plot.h"
 //==============================================================================
 extern int ets_uart_printf(const char *fmt, ...);
 int (*console_printf)(const char *fmt, ...) = ets_uart_printf;
@@ -35,19 +36,19 @@ void ICACHE_FLASH_ATTR loop_timer_cb(os_event_t *events)
 
 	//=========== show temperature ===================
 		if (temp[0][0] == '+')
-			printDigit_16x24(20 , 120 , YELLOW, BLUE, 12);
+			printDigit_16x24(20 , 110 , YELLOW, BLUE, 12);
 		else
-			printDigit_16x24(20 , 120 , YELLOW, BLUE, 13);
+			printDigit_16x24(20 , 110 , YELLOW, BLUE, 13);
 
-		printDigit_16x24(36 , 120 , YELLOW, BLUE, temp[0][1] - '0');
-		printDigit_16x24(52 , 120 , YELLOW, BLUE, temp[0][2] - '0');
-		printDigit_16x24(68 , 120 , YELLOW, BLUE, 14);
-		printDigit_16x24(84 , 120 , YELLOW, BLUE, temp[0][3] - '0');
+		printDigit_16x24(36 , 110 , YELLOW, BLUE, temp[0][1] - '0');
+		printDigit_16x24(52 , 110 , YELLOW, BLUE, temp[0][2] - '0');
+		printDigit_16x24(68 , 110 , YELLOW, BLUE, 14);
+		printDigit_16x24(84 , 110 , YELLOW, BLUE, temp[0][3] - '0');
 		//printDigit_16x24(100 , 120 , YELLOW, BLUE, 11);
 		addValueToArray(temp[0], temperature[0], NON_ROTATE);
 
 	//================================================
-		static int cntr = 60;
+		static int cntr = 5;
 		if (cntr)		cntr--;
 		else
 		{
@@ -56,6 +57,12 @@ void ICACHE_FLASH_ATTR loop_timer_cb(os_event_t *events)
 			addValueToArray(temp[0], temperature[0], ROTATE);
 			//addValueToArray(temp[1], temperature[1], ROTATE);
 			//mergeAnswerWith(temperature);
+
+			//===== graphic ========
+			signed int a = (temp[0][3]-'0') + (temp[0][2]-'0')*10 + (temp[0][1]-'0')*100;
+			if(temp[0][0] == '-')  a = a* (-1);
+			valueToBuffer(a, tBuffer);
+			showGraphic(tBuffer, 200);
 		}
 		mergeAnswerWith(temperature);
 
@@ -63,6 +70,7 @@ void ICACHE_FLASH_ATTR loop_timer_cb(os_event_t *events)
 	timeIncrement();
 	printTime();
 	//printDate();
+
 }
 //==============================================================================
 void ICACHE_FLASH_ATTR setup(void)
@@ -72,10 +80,10 @@ void ICACHE_FLASH_ATTR setup(void)
 	hspi_init();
 	LCD_wakeup();
 	lcd_clear(BLUE);
-	tft_fillRoundRect(10, 100, 105, 60, 20, YELLOW);
-	tft_fillRoundRect(15, 105, 95, 50, 15, BLUE);
-	tft_fillRoundRect(125, 100, 105, 60, 20, YELLOW);
-	tft_fillRoundRect(130, 105, 95, 50, 15, BLUE);
+	tft_fillRoundRect(10, 90, 105, 60, 20, YELLOW);
+	tft_fillRoundRect(15, 95, 95, 50, 15, BLUE);
+	tft_fillRoundRect(125, 90, 105, 60, 20, YELLOW);
+	tft_fillRoundRect(130, 95, 95, 50, 15, BLUE);
 
 
 	setup_wifi_ap_mode();
@@ -84,6 +92,8 @@ void ICACHE_FLASH_ATTR setup(void)
 	ets_uart_printf("DS init start\r\n");
 	ds18b20_init();
 	temperArrInit(temperature);
+
+	//saveConfigs();
 
 	// Start loop timer
 	os_timer_disarm(&loop_timer);

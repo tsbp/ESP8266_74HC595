@@ -5,7 +5,7 @@
 unsigned int _width    = WIDTH;
 unsigned int _height   = HEIGHT;
 //==============================================================================
-void tft_fillRect(unsigned int x, unsigned int y, 
+void ICACHE_FLASH_ATTR tft_fillRect(unsigned int x, unsigned int y,
                   unsigned int w, unsigned int h, 
                   unsigned long color)
 {
@@ -33,12 +33,12 @@ void tft_fillRect(unsigned int x, unsigned int y,
 //	SPI.endTransaction();
 }
 //==============================================================================
-void tft_fillScreen(unsigned long color)
+void ICACHE_FLASH_ATTR tft_fillScreen(unsigned long color)
 {
 	tft_fillRect(0, 0, _width, _height, color);
 }
 //==============================================================================
-void tft_drawFastVLine(unsigned int x, unsigned int y, unsigned int h, unsigned long color)
+void ICACHE_FLASH_ATTR tft_drawFastVLine(unsigned int x, unsigned int y, unsigned int h, unsigned long color)
 {
 	// Rudimentary clipping
 	if((x >= _width) || (y >= _height)) return;
@@ -53,7 +53,7 @@ void tft_drawFastVLine(unsigned int x, unsigned int y, unsigned int h, unsigned 
 //	SPI.endTransaction();
 }
 //==============================================================================
-void tft_drawFastHLine(unsigned int x, unsigned int y, unsigned int w, unsigned long color)
+void ICACHE_FLASH_ATTR tft_drawFastHLine(unsigned int x, unsigned int y, unsigned int w, unsigned long color)
 {
 	// Rudimentary clipping
 	if((x >= _width) || (y >= _height)) return;
@@ -68,7 +68,7 @@ void tft_drawFastHLine(unsigned int x, unsigned int y, unsigned int w, unsigned 
 //	SPI.endTransaction();
 }
 //==============================================================================
-void drawPixel( int x,  int y,  long color) {
+void ICACHE_FLASH_ATTR drawPixel( int x,  int y,  long color) {
 
 	if((x < 0) ||(x >= _width) || (y < 0) || (y >= _height)) return;
 
@@ -79,7 +79,7 @@ void drawPixel( int x,  int y,  long color) {
 	//SPI.endTransaction();
 }
 //==============================================================================
-void drawCircleHelper( unsigned int x0, unsigned int y0,
+void ICACHE_FLASH_ATTR drawCircleHelper( unsigned int x0, unsigned int y0,
                        unsigned int r, unsigned int cornername, 
                        unsigned long color) 
 {
@@ -119,7 +119,7 @@ void drawCircleHelper( unsigned int x0, unsigned int y0,
 //==============================================================================
 // Draw a circle outline
 //==============================================================================
-void tft_drawCircle(unsigned int x0, unsigned int y0, 
+void ICACHE_FLASH_ATTR tft_drawCircle(unsigned int x0, unsigned int y0,
                     unsigned int r,    unsigned long color) {
   int f = 1 - r;
   int ddF_x = 1;
@@ -157,7 +157,7 @@ void tft_drawCircle(unsigned int x0, unsigned int y0,
 //==============================================================================
 // Draw a rounded rectangle
 //==============================================================================
-void tft_drawRoundRect(unsigned int x, unsigned int y, 
+void ICACHE_FLASH_ATTR tft_drawRoundRect(unsigned int x, unsigned int y,
                        unsigned int w, unsigned int h, 
                        unsigned int r, unsigned long color) 
 {
@@ -175,7 +175,7 @@ void tft_drawRoundRect(unsigned int x, unsigned int y,
 //==============================================================================
 // Used to do circles and roundrects
 //==============================================================================
-void fillCircleHelper(unsigned int x0, unsigned int y0, 
+void ICACHE_FLASH_ATTR fillCircleHelper(unsigned int x0, unsigned int y0,
                       unsigned int r,    unsigned int cornername, 
                       unsigned int delta, unsigned long color) {
 
@@ -208,7 +208,7 @@ void fillCircleHelper(unsigned int x0, unsigned int y0,
 //==============================================================================
 // Fill a rounded rectangle
 //==============================================================================
-void tft_fillRoundRect(unsigned int x, unsigned int y, 
+void ICACHE_FLASH_ATTR tft_fillRoundRect(unsigned int x, unsigned int y,
                        unsigned int w, unsigned int h, 
                        unsigned int r, unsigned long color) 
 {

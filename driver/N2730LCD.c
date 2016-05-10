@@ -98,7 +98,7 @@ void lcd_clear(unsigned long aCol)
 
   lcdWrite(COMMAND, RAMWR);
 
-  for(i = 0; i < 180; i++)
+  for(i = 0; i < 240; i++)
       for(j = 0; j < 240; j++) setPixel(aCol);
 
 }
@@ -235,4 +235,92 @@ void printString (unsigned int aX, unsigned int aY, unsigned long aCOL, unsigned
     char_6x8(aX, aY, aCOL, aBGCOL, *aStr++);
     aX += 12;
   }
+}
+//==============================================================================
+void line (int aXs, int aYs,  int aXe, int aYe, unsigned long aCOL)
+{
+   int yn,i;
+   int yo;
+   yo = aYs;
+   for(i = aXs+1; i <= aXe ; i++)
+   {
+     int a = (i- aXs);
+     int b = (aYe-aYs);
+     int c = (aXe-aXs);
+     yn = ((a*b)/c) + aYs;
+     if(yn >= yo)lineV(i, yo, yn-yo+1, aCOL);
+     else        lineV(i, yn, yo-yn+1, aCOL);
+     yo = yn;
+   }
+}
+//==============================================================================
+void lineV (unsigned int aXs, unsigned int aYs, unsigned int aLng, unsigned long aCOL)
+{
+   lcdWrite(COMMAND, CASET);
+
+   lcdWrite(DATA, (unsigned char)((aXs) >> 8));
+   lcdWrite(DATA, (unsigned char) (aXs));
+   lcdWrite(DATA, (unsigned char)((aXs) >> 8));
+   lcdWrite(DATA, (unsigned char) (aXs));
+
+   lcdWrite(COMMAND, RASET);
+   lcdWrite(DATA, (unsigned char)((aYs) >> 8));
+   lcdWrite(DATA, (unsigned char) (aYs));
+   lcdWrite(DATA, (unsigned char)((aYs+aLng-1) >> 8));
+   lcdWrite(DATA, (unsigned char) (aYs+aLng-1));
+
+   lcdWrite(COMMAND, RAMWR);
+
+   int i;
+   for(i = 0; i < aLng; i++)
+   {
+       setPixel(aCOL);
+   }
+}
+//==============================================================================
+void lineH (unsigned int aXs, unsigned int aYs, unsigned int aLng, unsigned long aCOL)
+{
+   lcdWrite(COMMAND, CASET);
+
+   lcdWrite(DATA, (unsigned char)((aXs) >> 8));
+   lcdWrite(DATA, (unsigned char) (aXs));
+   lcdWrite(DATA, (unsigned char)((aXs+aLng-1) >> 8));
+   lcdWrite(DATA, (unsigned char) (aXs+aLng-1));
+
+   lcdWrite(COMMAND, RASET);
+   lcdWrite(DATA, (unsigned char)((aYs) >> 8));
+   lcdWrite(DATA, (unsigned char) (aYs));
+   lcdWrite(DATA, (unsigned char)((aYs) >> 8));
+   lcdWrite(DATA, (unsigned char) (aYs));
+
+   lcdWrite(COMMAND, RAMWR);
+
+   int i;
+   for(i = 0; i < aLng; i++)
+   {
+       setPixel(aCOL);
+   }
+}
+//==============================================================================
+void rectangle (unsigned int aXs, unsigned int aYs, unsigned int aXe, unsigned int aYe, unsigned long aCOL)
+{
+   lcdWrite(COMMAND, CASET);
+
+   lcdWrite(DATA, (unsigned char)((aXs) >> 8));
+   lcdWrite(DATA, (unsigned char) (aXs));
+   lcdWrite(DATA, (unsigned char)((aXe-1) >> 8));
+   lcdWrite(DATA, (unsigned char) (aXe-1));
+
+   lcdWrite(COMMAND, RASET);
+   lcdWrite(DATA, (unsigned char)((aYs) >> 8));
+   lcdWrite(DATA, (unsigned char) (aYs));
+   lcdWrite(DATA, (unsigned char)((aYe - 1) >> 8));
+   lcdWrite(DATA, (unsigned char) (aYe - 1));
+
+   lcdWrite(COMMAND, RAMWR);
+
+   int i, j;
+   for(i = 0; i < (aXe - aXs); i++)
+     for(j = 0; j < (aYe - aYs); j++)       setPixel(aCOL);
+
 }
