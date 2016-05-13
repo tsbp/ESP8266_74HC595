@@ -23,3 +23,4 @@ void ICACHE_FLASH_ATTR tft_drawFastVLine(unsigned int x, unsigned int y,
                        unsigned int h, unsigned long color);
 void ICACHE_FLASH_ATTR tft_drawFastHLine(unsigned int x, unsigned int y,
                        unsigned int w, unsigned long color);
+void ICACHE_FLASH_ATTR line (int aXs, int aYs,  int aXe, int aYe, unsigned long aCOL);

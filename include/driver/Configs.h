@@ -94,6 +94,6 @@ typedef union
 extern u_CONFIG configs;
 extern u_CONFIG *cPtrH, *cPtrW;
 //==============================================================================
-uint32 getSetTemperature(unsigned int aTime);
+uint32 getSetTemperature(void);
 unsigned char cmpTemperature (unsigned char *aT, signed int arcTemper);
   

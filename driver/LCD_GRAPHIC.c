@@ -68,6 +68,23 @@ void ICACHE_FLASH_ATTR tft_drawFastHLine(unsigned int x, unsigned int y, unsigne
 //	SPI.endTransaction();
 }
 //==============================================================================
+void ICACHE_FLASH_ATTR line (int aXs, int aYs,  int aXe, int aYe, unsigned long aCOL)
+{
+   int yn,i;
+   int yo;
+   yo = aYs;
+   for(i = aXs+1; i <= aXe ; i++)
+   {
+     int a = (i- aXs);
+     int b = (aYe-aYs);
+     int c = (aXe-aXs);
+     yn = ((a*b)/c) + aYs;
+     if(yn >= yo)tft_drawFastVLine(i, yo, yn-yo+1, aCOL);
+     else        tft_drawFastVLine(i, yn, yo-yn+1, aCOL);
+     yo = yn;
+   }
+}
+//==============================================================================
 void ICACHE_FLASH_ATTR drawPixel( int x,  int y,  long color) {
 
 	if((x < 0) ||(x >= _width) || (y < 0) || (y >= _height)) return;

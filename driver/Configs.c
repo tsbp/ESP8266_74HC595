@@ -23,31 +23,31 @@ int  dayOfWeek;
 //==============================================================================
 void ICACHE_FLASH_ATTR printTime(void)
 {
-	int x = 12, y = 16;
-	printDigitT_16x24(x, y, RED, BLUE, date_time.TIME.hour/10); x += 16;
-	printDigitT_16x24(x, y , RED, BLUE,  date_time.TIME.hour%10);x += 16;
-	printDigitT_16x24(x, y , RED, BLUE,  10);x += 16;
-	printDigitT_16x24(x, y , RED, BLUE,  date_time.TIME.min/10);x += 16;
-	printDigitT_16x24(x, y , RED, BLUE,  date_time.TIME.min%10);x += 32;
+	int x = 12, y = 48;
+	printDigitT_16x24(x, y, GREEN, 0x1f, date_time.TIME.hour/10); x += 16;
+	printDigitT_16x24(x, y , GREEN, 0x1f,  date_time.TIME.hour%10);x += 16;
+	printDigitT_16x24(x, y , GREEN, 0x1f,  10);x += 16;
+	printDigitT_16x24(x, y , GREEN, 0x1f,  date_time.TIME.min/10);x += 16;
+	printDigitT_16x24(x, y , GREEN, 0x1f,  date_time.TIME.min%10);x += 32;
 //	printDigitT_16x24(x, y , YELLOW, BLUE,  10);x += 16;
 //	printDigitT_16x24(x, y , YELLOW, BLUE,  date_time.TIME.sec/10);x += 17;
 //	printDigitT_16x24(x, y , YELLOW, BLUE,  date_time.TIME.sec%10);x += 16;
 
-	printDigitT_16x24(x, y , GREEN, BLUE,  date_time.DATE.day/10);x += 16;
-	printDigitT_16x24(x, y , GREEN, BLUE,  date_time.DATE.day%10);x += 16;
-	printDigitT_16x24(x, y , GREEN, BLUE,  19);x += 16;
-	printDigitT_16x24(x, y , GREEN, BLUE,  (date_time.DATE.month+1)/10);x += 16;
-	printDigitT_16x24(x, y , GREEN, BLUE,  (date_time.DATE.month+1)%10);x += 20;
+	printDigitT_16x24(x, y , 0x7f7fff, 0x1f,  date_time.DATE.day/10);x += 16;
+	printDigitT_16x24(x, y , 0x7f7fff, 0x1f,  date_time.DATE.day%10);x += 16;
+	printDigitT_16x24(x, y , 0x7f7fff, 0x1f,  19);x += 16;
+	printDigitT_16x24(x, y , 0x7f7fff, 0x1f,  (date_time.DATE.month+1)/10);x += 16;
+	printDigitT_16x24(x, y , 0x7f7fff, 0x1f,  (date_time.DATE.month+1)%10);x += 20;
 
 	switch(getDayOfWeek())
 	{
-		case 0: printDigitT_16x24(x, y , YELLOW, BLUE,  16);x += 16; printDigitT_16x24(x, y , YELLOW, BLUE,  18);x += 16; break;
-		case 1: printDigitT_16x24(x, y , YELLOW, BLUE,  17);x += 16; printDigitT_16x24(x, y , YELLOW, BLUE,  16);x += 16; break;
-		case 2: printDigitT_16x24(x, y , YELLOW, BLUE,  15);x += 16; printDigitT_16x24(x, y , YELLOW, BLUE,  12);x += 16; break;
-		case 3: printDigitT_16x24(x, y , YELLOW, BLUE,  17);x += 16; printDigitT_16x24(x, y , YELLOW, BLUE,  11);x += 16; break;
-		case 4: printDigitT_16x24(x, y , YELLOW, BLUE,  16);x += 16; printDigitT_16x24(x, y , YELLOW, BLUE,  13);x += 16; break;
-		case 5: printDigitT_16x24(x, y , YELLOW, BLUE,  14);x += 16; printDigitT_16x24(x, y , YELLOW, BLUE,  11);x += 16; break;
-		case 6: printDigitT_16x24(x, y , YELLOW, BLUE,  15);x += 16; printDigitT_16x24(x, y , YELLOW, BLUE,  11);x += 16; break;
+		case 0: printDigitT_16x24(x, y , 0x7f7f00, 0x1f,  16);x += 16; printDigitT_16x24(x, y , 0x7f7f00, 0x1f,  18);x += 16; break;
+		case 1: printDigitT_16x24(x, y , 0x7f7f00, 0x1f,  17);x += 16; printDigitT_16x24(x, y , 0x7f7f00, 0x1f,  16);x += 16; break;
+		case 2: printDigitT_16x24(x, y , 0x7f7f00, 0x1f,  15);x += 16; printDigitT_16x24(x, y , 0x7f7f00, 0x1f,  12);x += 16; break;
+		case 3: printDigitT_16x24(x, y , 0x7f7f00, 0x1f,  17);x += 16; printDigitT_16x24(x, y , 0x7f7f00, 0x1f,  11);x += 16; break;
+		case 4: printDigitT_16x24(x, y , 0x7f7f00, 0x1f,  16);x += 16; printDigitT_16x24(x, y , 0x7f7f00, 0x1f,  13);x += 16; break;
+		case 5: printDigitT_16x24(x, y , 0x7f7f00, 0x1f,  14);x += 16; printDigitT_16x24(x, y , 0x7f7f00, 0x1f,  11);x += 16; break;
+		case 6: printDigitT_16x24(x, y , 0x7f7f00, 0x1f,  15);x += 16; printDigitT_16x24(x, y , 0x7f7f00, 0x1f,  11);x += 16; break;
 	}
 }
 //==============================================================================
@@ -245,9 +245,10 @@ void ICACHE_FLASH_ATTR readConfigs(void) {
 
 }
 //==============================================================================
-uint32 ICACHE_FLASH_ATTR getSetTemperature(unsigned int aTime)  // return ptr to set temper to INFO
+uint32 ICACHE_FLASH_ATTR getSetTemperature()  // return ptr to set temper to INFO
 {
 	 //ets_uart_printf("aTime = %d\r\n", aTime);
+	unsigned int aTime = date_time.TIME.hour * 60 + date_time.TIME.min;
 
   int aDayNumber = getDayOfWeek();
   //ets_uart_printf("aDayNumber = %d\r\n", aDayNumber);
@@ -279,6 +280,11 @@ uint32 ICACHE_FLASH_ATTR getSetTemperature(unsigned int aTime)  // return ptr to
     if(aTime < end)  break;     
   }
 
+  char_6x8(36 , 12 , GREEN, 0x5f, (char)(cPtr.pConfig[curPeriod].temperature >> 16));
+  char_6x8(48 , 12 , GREEN, 0x5f, (char)(cPtr.pConfig[curPeriod].temperature >> 8));
+  char_6x8(60 , 12 , GREEN, 0x5f, ',');
+  char_6x8(72 , 12 , GREEN, 0x5f, (char)(cPtr.pConfig[curPeriod].temperature));
+
 //    Gotoxy(0,2);
 //	print_char((char) (aDay));
 //	print_char((char) (cPtr.pConfig[curPeriod].temperature >> 16));
@@ -297,16 +303,16 @@ uint32 ICACHE_FLASH_ATTR getSetTemperature(unsigned int aTime)  // return ptr to
 unsigned char ICACHE_FLASH_ATTR cmpTemperature (unsigned char *aT, signed int arcTemper)
 {  
   static unsigned char out = 0;
-  static unsigned long col = 0x44916c;
+
   int tmp = (aT[0] - '0') * 100 + (aT[1] - '0') * 10 + (aT[2] - '0');
   if      (arcTemper > tmp + (configs.nastr.delta))
   {
-    //col = 0x44916c;
+	print_icon(8, 8, GREEN, 0x5f, 1);
     out = 0; 
   }
   else if (arcTemper < tmp - (configs.nastr.delta))
   {
-    //col = 0xdb214c;
+	print_icon(8, 8, GREEN, RED, 1);
     out = 1;
   }
   

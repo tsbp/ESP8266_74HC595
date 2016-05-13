@@ -12,7 +12,7 @@ void ICACHE_FLASH_ATTR serialSendData(void)
 	hspi_wait_ready();
 }
 //==============================================================================
-void lcdWrite(unsigned char aType, unsigned char aByte)
+void ICACHE_FLASH_ATTR lcdWrite(unsigned char aType, unsigned char aByte)
 {
 
   LCD_DCX(aType);
@@ -25,14 +25,14 @@ void lcdWrite(unsigned char aType, unsigned char aByte)
   serialSendData();
 }
 //==============================================================================
-void LCD_Init(void)
+void ICACHE_FLASH_ATTR LCD_Init(void)
 {
 
 
 
 }
 //==============================================================================
-void LCD_setAddr(unsigned int x0, unsigned int y0, unsigned int x1, unsigned int y1)
+void ICACHE_FLASH_ATTR LCD_setAddr(unsigned int x0, unsigned int y0, unsigned int x1, unsigned int y1)
 {
    lcdWrite(COMMAND, CASET);
    lcdWrite(DATA, (unsigned char)((x0) >> 8));
@@ -48,7 +48,7 @@ void LCD_setAddr(unsigned int x0, unsigned int y0, unsigned int x1, unsigned int
    lcdWrite(DATA, (unsigned char) (y1));
 }
 //==============================================================================
-void LCD_wakeup(void)
+void ICACHE_FLASH_ATTR LCD_wakeup(void)
 {
   LCD_RDX(1); serialSendData();
   LCD_CSX(1);   serialSendData();          //RES = 0;
@@ -72,14 +72,14 @@ void LCD_wakeup(void)
 
 }
 //==============================================================================
-void setPixel(unsigned long aCol)
+void ICACHE_FLASH_ATTR setPixel(unsigned long aCol)
 {
   lcdWrite(DATA, (unsigned char)(aCol >> 16));
   lcdWrite(DATA, (unsigned char)(aCol >> 8));
   lcdWrite(DATA, (unsigned char)aCol);
 }
 //==============================================================================
-void lcd_clear(unsigned long aCol)
+void ICACHE_FLASH_ATTR lcd_clear(unsigned long aCol)
 {
 	int i, j;
    lcdWrite(COMMAND, CASET);
@@ -103,7 +103,7 @@ void lcd_clear(unsigned long aCol)
 
 }
 //==============================================================================
-void char_6x8 (unsigned int aX, unsigned int aY, unsigned long aCOL, unsigned long aBGCOL, unsigned char aChar)
+void ICACHE_FLASH_ATTR char_6x8 (unsigned int aX, unsigned int aY, unsigned long aCOL, unsigned long aBGCOL, unsigned char aChar)
 {
 
    lcdWrite(COMMAND, CASET);
@@ -140,7 +140,7 @@ void char_6x8 (unsigned int aX, unsigned int aY, unsigned long aCOL, unsigned lo
    }
 }
 //==============================================================================
-void char_6x8_s (unsigned int aX, unsigned int aY, unsigned long aCOL, unsigned long aBGCOL, unsigned char aChar)
+void ICACHE_FLASH_ATTR char_6x8_s (unsigned int aX, unsigned int aY, unsigned long aCOL, unsigned long aBGCOL, unsigned char aChar)
 {
    lcdWrite(COMMAND, CASET);
 
@@ -172,7 +172,7 @@ void char_6x8_s (unsigned int aX, unsigned int aY, unsigned long aCOL, unsigned 
 #define SYM_HEIGHT  (24/8) // количество байт в высоту
 #define SYM_WIDGHT  (16)
 //==============================================================================
-void printDigit_16x24 (unsigned int aX, unsigned int aY, unsigned long aCOL, unsigned long aBGCOL, unsigned char aChar)
+void ICACHE_FLASH_ATTR printDigit_16x24 (unsigned int aX, unsigned int aY, unsigned long aCOL, unsigned long aBGCOL, unsigned char aChar)
 {
    lcdWrite(COMMAND, CASET);
 
@@ -200,7 +200,7 @@ void printDigit_16x24 (unsigned int aX, unsigned int aY, unsigned long aCOL, uns
 		   }
 }
 //==============================================================================
-void printDigitT_16x24 (unsigned int aX, unsigned int aY, unsigned long aCOL, unsigned long aBGCOL, unsigned char aChar)
+void ICACHE_FLASH_ATTR printDigitT_16x24 (unsigned int aX, unsigned int aY, unsigned long aCOL, unsigned long aBGCOL, unsigned char aChar)
 {
    lcdWrite(COMMAND, CASET);
 
@@ -228,99 +228,67 @@ void printDigitT_16x24 (unsigned int aX, unsigned int aY, unsigned long aCOL, un
 		   }
 }
 //==============================================================================
-void printString (unsigned int aX, unsigned int aY, unsigned long aCOL, unsigned long aBGCOL, unsigned char *aStr)
+void ICACHE_FLASH_ATTR print_icon (unsigned int aX, unsigned int aY, unsigned long aCOL, unsigned long aBGCOL, unsigned char aChar)
+{
+   lcdWrite(COMMAND, CASET);
+
+   lcdWrite(DATA, (unsigned char)((aX) >> 8));
+   lcdWrite(DATA, (unsigned char)(aX));
+   lcdWrite(DATA, (unsigned char)((aX+23) >> 8));
+   lcdWrite(DATA, (unsigned char)(aX+23));
+
+   lcdWrite(COMMAND, RASET);
+   lcdWrite(DATA, (unsigned char)(aY >> 8));
+   lcdWrite(DATA, (unsigned char)(aY));
+   lcdWrite(DATA, (unsigned char)((aY+23) >> 8));
+   lcdWrite(DATA, (unsigned char)(aY+23));
+
+   lcdWrite(COMMAND, RAMWR);
+
+   int i, j, k;
+
+   for(i = 0; i < 3; i++)
+	   for(j = 0; j < 8; j++)
+		   for(k = 0; k < 24; k++)
+		   {
+			   if (icons[24*3*aChar + 24*i + k] & (1 << j)) { setPixel(aCOL);}
+			   else                               { setPixel(aBGCOL);}
+		   }
+}
+//==============================================================================
+void ICACHE_FLASH_ATTR printDigit_16x32 (unsigned int aX, unsigned int aY, unsigned long aCOL, unsigned long aBGCOL, unsigned char aChar)
+{
+   lcdWrite(COMMAND, CASET);
+
+   lcdWrite(DATA, (unsigned char)((aX) >> 8));
+   lcdWrite(DATA, (unsigned char)(aX));
+   lcdWrite(DATA, (unsigned char)((aX+15) >> 8));
+   lcdWrite(DATA, (unsigned char)(aX+15));
+
+   lcdWrite(COMMAND, RASET);
+   lcdWrite(DATA, (unsigned char)(aY >> 8));
+   lcdWrite(DATA, (unsigned char)(aY));
+   lcdWrite(DATA, (unsigned char)((aY+31) >> 8));
+   lcdWrite(DATA, (unsigned char)(aY+31));
+
+   lcdWrite(COMMAND, RAMWR);
+
+   int i, j, k;
+
+   for(i = 0; i < 4; i++)
+	   for(j = 0; j < 8; j++)
+		   for(k = 0; k < 16; k++)
+		   {
+			   if (GOST_16x32[16*4*aChar + 16*i + k] & (1 << j)) { setPixel(aCOL);}
+			   else                               { setPixel(aBGCOL);}
+		   }
+}
+//==============================================================================
+void ICACHE_FLASH_ATTR printString (unsigned int aX, unsigned int aY, unsigned long aCOL, unsigned long aBGCOL, unsigned char *aStr)
 {
   while (*aStr)
   {
     char_6x8(aX, aY, aCOL, aBGCOL, *aStr++);
     aX += 12;
   }
-}
-//==============================================================================
-void line (int aXs, int aYs,  int aXe, int aYe, unsigned long aCOL)
-{
-   int yn,i;
-   int yo;
-   yo = aYs;
-   for(i = aXs+1; i <= aXe ; i++)
-   {
-     int a = (i- aXs);
-     int b = (aYe-aYs);
-     int c = (aXe-aXs);
-     yn = ((a*b)/c) + aYs;
-     if(yn >= yo)lineV(i, yo, yn-yo+1, aCOL);
-     else        lineV(i, yn, yo-yn+1, aCOL);
-     yo = yn;
-   }
-}
-//==============================================================================
-void lineV (unsigned int aXs, unsigned int aYs, unsigned int aLng, unsigned long aCOL)
-{
-   lcdWrite(COMMAND, CASET);
-
-   lcdWrite(DATA, (unsigned char)((aXs) >> 8));
-   lcdWrite(DATA, (unsigned char) (aXs));
-   lcdWrite(DATA, (unsigned char)((aXs) >> 8));
-   lcdWrite(DATA, (unsigned char) (aXs));
-
-   lcdWrite(COMMAND, RASET);
-   lcdWrite(DATA, (unsigned char)((aYs) >> 8));
-   lcdWrite(DATA, (unsigned char) (aYs));
-   lcdWrite(DATA, (unsigned char)((aYs+aLng-1) >> 8));
-   lcdWrite(DATA, (unsigned char) (aYs+aLng-1));
-
-   lcdWrite(COMMAND, RAMWR);
-
-   int i;
-   for(i = 0; i < aLng; i++)
-   {
-       setPixel(aCOL);
-   }
-}
-//==============================================================================
-void lineH (unsigned int aXs, unsigned int aYs, unsigned int aLng, unsigned long aCOL)
-{
-   lcdWrite(COMMAND, CASET);
-
-   lcdWrite(DATA, (unsigned char)((aXs) >> 8));
-   lcdWrite(DATA, (unsigned char) (aXs));
-   lcdWrite(DATA, (unsigned char)((aXs+aLng-1) >> 8));
-   lcdWrite(DATA, (unsigned char) (aXs+aLng-1));
-
-   lcdWrite(COMMAND, RASET);
-   lcdWrite(DATA, (unsigned char)((aYs) >> 8));
-   lcdWrite(DATA, (unsigned char) (aYs));
-   lcdWrite(DATA, (unsigned char)((aYs) >> 8));
-   lcdWrite(DATA, (unsigned char) (aYs));
-
-   lcdWrite(COMMAND, RAMWR);
-
-   int i;
-   for(i = 0; i < aLng; i++)
-   {
-       setPixel(aCOL);
-   }
-}
-//==============================================================================
-void rectangle (unsigned int aXs, unsigned int aYs, unsigned int aXe, unsigned int aYe, unsigned long aCOL)
-{
-   lcdWrite(COMMAND, CASET);
-
-   lcdWrite(DATA, (unsigned char)((aXs) >> 8));
-   lcdWrite(DATA, (unsigned char) (aXs));
-   lcdWrite(DATA, (unsigned char)((aXe-1) >> 8));
-   lcdWrite(DATA, (unsigned char) (aXe-1));
-
-   lcdWrite(COMMAND, RASET);
-   lcdWrite(DATA, (unsigned char)((aYs) >> 8));
-   lcdWrite(DATA, (unsigned char) (aYs));
-   lcdWrite(DATA, (unsigned char)((aYe - 1) >> 8));
-   lcdWrite(DATA, (unsigned char) (aYe - 1));
-
-   lcdWrite(COMMAND, RAMWR);
-
-   int i, j;
-   for(i = 0; i < (aXe - aXs); i++)
-     for(j = 0; j < (aYe - aYs); j++)       setPixel(aCOL);
-
 }

@@ -14,11 +14,12 @@
 #include "driver/configs.h"
 //=========================================================================================
 extern u_CONFIG configs;
+struct espconn *UDP_P;
 //============================================================================================================================
 void ICACHE_FLASH_ATTR UDP_Init() {
 
 	//system_set_os_print(0);
-	struct espconn *UDP_P = (struct espconn *) os_zalloc(
+	/*struct espconn **/UDP_P = (struct espconn *) os_zalloc(
 			sizeof(struct espconn));
 	UDP_P->proto.udp = (esp_udp *) os_zalloc(sizeof(esp_udp));
 	UDP_P->state = ESPCONN_NONE;
@@ -59,6 +60,18 @@ void  mergeAnswerWith(char tPtr[2][24][4])
 
 }
 //=========================================================================================
+void ICACHE_FLASH_ATTR sendUDPbroadcast(void)
+{
+	char bc[] = {"broadcast"};
+	UDP_P->proto.udp->remote_port = (int) 7777;
+	UDP_P->proto.udp->remote_ip[0] = 255;
+	UDP_P->proto.udp->remote_ip[1] = 255;
+	UDP_P->proto.udp->remote_ip[2] = 255;
+	UDP_P->proto.udp->remote_ip[3] = 255;
+	espconn_sent(UDP_P, bc, sizeof(bc));
+	ets_uart_printf("%s\r\n", bc);
+}
+//=========================================================================================
 void UDP_Recieved(void *arg, char *pusrdata, unsigned short length)
  {
 
@@ -67,13 +80,13 @@ void UDP_Recieved(void *arg, char *pusrdata, unsigned short length)
      uint8 flashWriteBit = 0;
 
        remot_info *premot = NULL;
-       sint8 value = ESPCONN_OK;
+       //sint8 value = ESPCONN_OK;
        if (espconn_get_connection_info(pesp_conn,&premot,0) == ESPCONN_OK){
-             pesp_conn->proto.tcp->remote_port = premot->remote_port;
-             pesp_conn->proto.tcp->remote_ip[0] = premot->remote_ip[0];
-             pesp_conn->proto.tcp->remote_ip[1] = premot->remote_ip[1];
-             pesp_conn->proto.tcp->remote_ip[2] = premot->remote_ip[2];
-             pesp_conn->proto.tcp->remote_ip[3] = premot->remote_ip[3];
+             pesp_conn->proto.udp->remote_port = premot->remote_port;
+             pesp_conn->proto.udp->remote_ip[0] = premot->remote_ip[0];
+             pesp_conn->proto.udp->remote_ip[1] = premot->remote_ip[1];
+             pesp_conn->proto.udp->remote_ip[2] = premot->remote_ip[2];
+             pesp_conn->proto.udp->remote_ip[3] = premot->remote_ip[3];
 
              int shift = 0xff;
 

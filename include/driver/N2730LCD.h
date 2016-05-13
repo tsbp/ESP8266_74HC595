@@ -114,25 +114,19 @@ extern uLCD_WORD lcdWord;
 #define FLASH_MENU_SCR    (600)
 #define FLASH_NFOUND      (800)
 //==============================================================================
-void LCD_Init(void);
-void LCD_wakeup(void);
-void LCD_setAddr(unsigned int x0, unsigned int y0, unsigned int x1, unsigned int y1);
-void setPixel(unsigned long aCol);
-void lcdWrite(unsigned char aType, unsigned char aByte);
-void char_6x8 (unsigned int aX, unsigned int aY, unsigned long aCOL, unsigned long aBGCOL, unsigned char aChar);
-void char_6x8_s (unsigned int aX, unsigned int aY, unsigned long aCOL, unsigned long aBGCOL, unsigned char aChar);
-void printString (unsigned int aX, unsigned int aY, unsigned long aCOL, unsigned long aBGCOL, unsigned char *aStr);
-void printDigit_16x24(unsigned int aX, unsigned int aY, unsigned long aCOL, unsigned long aBGCOL, unsigned char aDig);
-void printDigitT_16x24 (unsigned int aX, unsigned int aY, unsigned long aCOL, unsigned long aBGCOL, unsigned char aChar);
-void pictute(unsigned int aX, unsigned int aY);
-void digitFromDram(unsigned int aX, unsigned int aY, unsigned int aDig);
-void picFromDram(unsigned int aX, unsigned int aY, unsigned int aH, unsigned int aW, unsigned long aAddr);
-void digitFromDramInterpolate(unsigned int aX, unsigned int aY, unsigned int aDig);
-void picFromFlash(unsigned int aX, unsigned long aY, unsigned long aH, unsigned int aW, unsigned int dOfset);
-void lcd_clear(unsigned long aCol);
-void line (int aXs, int aYs, int aXe, int aYe, unsigned long aCOL);
-void lineV (unsigned int aXs, unsigned int aYs, unsigned int aLng, unsigned long aCOL);
-void lineH (unsigned int aXs, unsigned int aYs, unsigned int aLng, unsigned long aCOL);
-void rectangle (unsigned int aXs, unsigned int aYs, unsigned int aXe, unsigned int aYe, unsigned long aCOL);
+void ICACHE_FLASH_ATTR serialSendData(void);
+void ICACHE_FLASH_ATTR lcdWrite(unsigned char aType, unsigned char aByte);
+void ICACHE_FLASH_ATTR LCD_Init(void);
+void ICACHE_FLASH_ATTR LCD_setAddr(unsigned int x0, unsigned int y0, unsigned int x1, unsigned int y1);
+void ICACHE_FLASH_ATTR LCD_wakeup(void);
+void ICACHE_FLASH_ATTR setPixel(unsigned long aCol);
+void ICACHE_FLASH_ATTR lcd_clear(unsigned long aCol);
+void ICACHE_FLASH_ATTR char_6x8 (unsigned int aX, unsigned int aY, unsigned long aCOL, unsigned long aBGCOL, unsigned char aChar);
+void ICACHE_FLASH_ATTR char_6x8_s (unsigned int aX, unsigned int aY, unsigned long aCOL, unsigned long aBGCOL, unsigned char aChar);
+void ICACHE_FLASH_ATTR printDigit_16x24 (unsigned int aX, unsigned int aY, unsigned long aCOL, unsigned long aBGCOL, unsigned char aChar);
+void ICACHE_FLASH_ATTR printDigitT_16x24 (unsigned int aX, unsigned int aY, unsigned long aCOL, unsigned long aBGCOL, unsigned char aChar);
+void ICACHE_FLASH_ATTR printDigit_16x32 (unsigned int aX, unsigned int aY, unsigned long aCOL, unsigned long aBGCOL, unsigned char aChar);
+void ICACHE_FLASH_ATTR printString (unsigned int aX, unsigned int aY, unsigned long aCOL, unsigned long aBGCOL, unsigned char *aStr);
+void ICACHE_FLASH_ATTR print_icon (unsigned int aX, unsigned int aY, unsigned long aCOL, unsigned long aBGCOL, unsigned char aChar);
 
 #endif /* INCLUDE_DRIVER_N2730LCD_H_ */
