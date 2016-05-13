@@ -39,6 +39,7 @@ void ICACHE_FLASH_ATTR printTime(void)
 	printDigitT_16x24(x, y , 0x7f7fff, 0x1f,  (date_time.DATE.month+1)/10);x += 16;
 	printDigitT_16x24(x, y , 0x7f7fff, 0x1f,  (date_time.DATE.month+1)%10);x += 20;
 
+
 	switch(getDayOfWeek())
 	{
 		case 0: printDigitT_16x24(x, y , 0x7f7f00, 0x1f,  16);x += 16; printDigitT_16x24(x, y , 0x7f7f00, 0x1f,  18);x += 16; break;
@@ -257,15 +258,17 @@ uint32 ICACHE_FLASH_ATTR getSetTemperature()  // return ptr to set temper to INF
   u_CONFIG *aPtr;
   unsigned long col;
   
-  if      (aDayNumber == 0)  aDay = configs.nastr.day[5];
-  else if (aDayNumber == 1)  aDay = configs.nastr.day[6];
-  else                       aDay = configs.nastr.day[aDayNumber - 2];
+  if      (aDayNumber == 0) { aDay = configs.nastr.day[5];}
+  else if (aDayNumber == 1) { aDay = configs.nastr.day[6]; }
+  else                      { aDay = configs.nastr.day[aDayNumber - 2]; }
   
   //ets_uart_printf("aDay = %c\r\n", aDay);
   u_CONFIG_u cPtr = (aDay == 'H') ? configs.cfg[1] : configs.cfg[0];
 
+  if(aDay == 'H') print_icon(8, 8, 0xff7f7f, 0x5f, 4);
+  else            print_icon(8, 8, 0x7f00, 0x5f, 5);
 
-
+  cPtr = (aDay == 'H') ? configs.cfg[1] : configs.cfg[0];
       
   uint32 curPeriod = 0;
   //ets_uart_printf("periodsCnt = %d\r\n", (configs.periodsCnt & 0x000000ff) - '0');
@@ -280,10 +283,17 @@ uint32 ICACHE_FLASH_ATTR getSetTemperature()  // return ptr to set temper to INF
     if(aTime < end)  break;     
   }
 
-  char_6x8(36 , 12 , GREEN, 0x5f, (char)(cPtr.pConfig[curPeriod].temperature >> 16));
-  char_6x8(48 , 12 , GREEN, 0x5f, (char)(cPtr.pConfig[curPeriod].temperature >> 8));
-  char_6x8(60 , 12 , GREEN, 0x5f, ',');
-  char_6x8(72 , 12 , GREEN, 0x5f, (char)(cPtr.pConfig[curPeriod].temperature));
+  // set temperature
+  char_6x8(36 + 28 , 12 , GREEN, 0x5f, (char)(cPtr.pConfig[curPeriod].temperature >> 16));
+  char_6x8(48 + 28 , 12 , GREEN, 0x5f, (char)(cPtr.pConfig[curPeriod].temperature >> 8));
+  char_6x8(60 + 28 , 12 , GREEN, 0x5f, ',');
+  char_6x8(72 + 28 , 12 , GREEN, 0x5f, (char)(cPtr.pConfig[curPeriod].temperature));
+
+  // delta
+  char_6x8(96 + 28 , 12 , 0x7f00, 0x5f, 0x7e);
+  char_6x8(108 + 28 , 12 , 0x7f00, 0x5f, configs.nastr.delta/10 + '0');
+  char_6x8(120 + 28 , 12 , 0x7f00, 0x5f, ',');
+  char_6x8(132 + 28 , 12 , 0x7f00, 0x5f, configs.nastr.delta%10 + '0');
 
 //    Gotoxy(0,2);
 //	print_char((char) (aDay));
@@ -304,15 +314,17 @@ unsigned char ICACHE_FLASH_ATTR cmpTemperature (unsigned char *aT, signed int ar
 {  
   static unsigned char out = 0;
 
-  int tmp = (aT[0] - '0') * 100 + (aT[1] - '0') * 10 + (aT[2] - '0');
+  int tmp = (aT[2] - '0') * 100 + (aT[1] - '0') * 10 + (aT[0] - '0');
+
+  //ets_uart_printf("arcTemper = %d, tmp = %d, delta = %d\r\n", arcTemper, tmp, configs.nastr.delta);
   if      (arcTemper > tmp + (configs.nastr.delta))
   {
-	print_icon(8, 8, GREEN, 0x5f, 1);
+	print_icon(34, 8, GREEN, 0x5f, 1);
     out = 0; 
   }
   else if (arcTemper < tmp - (configs.nastr.delta))
   {
-	print_icon(8, 8, GREEN, RED, 1);
+	  print_icon(34, 8, RED, 0x5f, 0);
     out = 1;
   }
   

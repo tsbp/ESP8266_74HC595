@@ -61,6 +61,9 @@ void ICACHE_FLASH_ATTR loop_timer_cb(os_event_t *events)
 		addValueToArray(temp[1], temperature[1], NON_ROTATE);
 
 	//================================================
+		signed int a = (temp[0][3]-'0') + (temp[0][2]-'0')*10 + (temp[0][1]-'0')*100;
+		signed int b = (temp[1][3]-'0') + (temp[1][2]-'0')*10 + (temp[1][1]-'0')*100;
+
 		static int cntr = 5;
 		if (cntr)		cntr--;
 		else
@@ -72,8 +75,7 @@ void ICACHE_FLASH_ATTR loop_timer_cb(os_event_t *events)
 			//mergeAnswerWith(temperature);
 
 			//===== graphic ========
-			signed int a = (temp[0][3]-'0') + (temp[0][2]-'0')*10 + (temp[0][1]-'0')*100;
-			signed int b = (temp[1][3]-'0') + (temp[1][2]-'0')*10 + (temp[1][1]-'0')*100;
+
 			if(temp[0][0] == '-')  a = a* (-1);
 			if(temp[1][0] == '-')  b = b* (-1);
 			valueToBuffer(a, tBuffer);
@@ -88,10 +90,13 @@ void ICACHE_FLASH_ATTR loop_timer_cb(os_event_t *events)
 	printTime();
 	//printDate();
 
-	sendUDPbroadcast();
+	//sendUDPbroadcast();
 
-	uint32 t = getSetTemperature();
-	print_icon(8, 8, RED, 0x5f, 0);
+	//uint32 t = getSetTemperature();
+
+	//cmpTemperature ((unsigned char *)(&t), a);
+
+
 }
 //==============================================================================
 void ICACHE_FLASH_ATTR setup(void)
@@ -112,6 +117,8 @@ void ICACHE_FLASH_ATTR setup(void)
 	tft_fillRoundRect(125, 90, 105, 60, 20, GREEN);
 	tft_fillRoundRect(130, 95, 95, 50, 15, BLUE);
 
+	tft_drawRoundRect(62, 8, 54, 24, 5, GREEN);
+
 
 	setup_wifi_ap_mode();
 	UDP_Init();
@@ -122,6 +129,7 @@ void ICACHE_FLASH_ATTR setup(void)
 
 	//saveConfigs();
 	readConfigs();
+	print_icon(208, 8, BLUE, 0x5f, 2);
 
 	// Start loop timer
 	os_timer_disarm(&loop_timer);
