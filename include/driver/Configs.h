@@ -96,4 +96,5 @@ extern u_CONFIG *cPtrH, *cPtrW;
 //==============================================================================
 uint32 getSetTemperature(void);
 unsigned char cmpTemperature (unsigned char *aT, signed int arcTemper);
+void ICACHE_FLASH_ATTR showTemperature(uint16 aX, uint16 aY, unsigned char *aBuf);
   

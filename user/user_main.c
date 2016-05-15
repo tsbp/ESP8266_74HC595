@@ -36,65 +36,48 @@ void ICACHE_FLASH_ATTR loop_timer_cb(os_event_t *events)
 
 
 	//=========== show temperature ===================
-		if (temp[0][0] == '+')
-			printDigit_16x32(20 , 105 , YELLOW, BLUE, 11);
-		else
-			printDigit_16x32(20 , 105 , YELLOW, BLUE, 12);
-
-		printDigit_16x32(36 , 105 , YELLOW, BLUE, temp[0][1] - '0');
-		printDigit_16x32(52 , 105 , YELLOW, BLUE, temp[0][2] - '0');
-		printDigit_16x32(68 , 105 , YELLOW, BLUE, 10);
-		printDigit_16x32(84 , 105 , YELLOW, BLUE, temp[0][3] - '0');
-		//printDigit_16x24(100 , 120 , YELLOW, BLUE, 11);
-
-		if (temp[1][0] == '+')
-			printDigit_16x32(132, 105, GREEN, BLUE, 11);
-		else
-			printDigit_16x32(132, 105, GREEN, BLUE, 12);
-
-		printDigit_16x32(148, 105, GREEN, BLUE, temp[1][1] - '0');
-		printDigit_16x32(164, 105, GREEN, BLUE, temp[1][2] - '0');
-		printDigit_16x32(180, 105, GREEN, BLUE, 10);
-		printDigit_16x32(196, 105, GREEN, BLUE, temp[1][3] - '0');
-
-		addValueToArray(temp[0], temperature[0], NON_ROTATE);
-		addValueToArray(temp[1], temperature[1], NON_ROTATE);
-
+	showTemperature(20,  105, temp[0]);
+	showTemperature(132, 105, temp[1]);
+	addValueToArray(temp[0], temperature[0], NON_ROTATE);
+	addValueToArray(temp[1], temperature[1], NON_ROTATE);
 	//================================================
-		signed int a = (temp[0][3]-'0') + (temp[0][2]-'0')*10 + (temp[0][1]-'0')*100;
-		signed int b = (temp[1][3]-'0') + (temp[1][2]-'0')*10 + (temp[1][1]-'0')*100;
+	signed int a = (temp[0][3] - '0') + (temp[0][2] - '0') * 10	+ (temp[0][1] - '0') * 100;
+	signed int b = (temp[1][3] - '0') + (temp[1][2] - '0') * 10	+ (temp[1][1] - '0') * 100;
 
-		static int cntr = 5;
-		if (cntr)		cntr--;
-		else
-		{
-			cntr = 60;
-			ets_uart_printf("T1 = %s, T2 = \r\n", temp[0]);
-			addValueToArray(temp[0], temperature[0], ROTATE);
-			addValueToArray(temp[1], temperature[1], ROTATE);
-			//mergeAnswerWith(temperature);
+	static int cntr = 5;
+	if (cntr)
+	{
+		cntr--;
+		uint32 t = getSetTemperature();
+		cmpTemperature ((unsigned char *)(&t), a);
+	}
+	else
+	{
+		cntr = 60;
+		ets_uart_printf("T1 = %s, T2 = \r\n", temp[0]);
+		addValueToArray(temp[0], temperature[0], ROTATE);
+		addValueToArray(temp[1], temperature[1], ROTATE);
+		//mergeAnswerWith(temperature);
 
-			//===== graphic ========
+		//===== graphic ========
 
-			if(temp[0][0] == '-')  a = a* (-1);
-			if(temp[1][0] == '-')  b = b* (-1);
-			valueToBuffer(a, tBuffer);
-			valueToBuffer(b, tBuffer2);
-			showGraphic(tBuffer, 160, 0x0000a0);
-			showGraphic(tBuffer2, 240, 0x5b5b00);
-		}
-		mergeAnswerWith(temperature);
+		if (temp[0][0] == '-')
+			a = a * (-1);
+		if (temp[1][0] == '-')
+			b = b * (-1);
+		valueToBuffer(a, tBuffer);
+		valueToBuffer(b, tBuffer2);
+		showGraphic(tBuffer, 160, 0x0000a0);
+		showGraphic(tBuffer2, 240, 0x5b5b00);
+	}
+	mergeAnswerWith(temperature);
 
 	//================================================
 	timeIncrement();
 	printTime();
-	//printDate();
-
 	//sendUDPbroadcast();
 
-	//uint32 t = getSetTemperature();
 
-	//cmpTemperature ((unsigned char *)(&t), a);
 
 
 }
@@ -119,22 +102,62 @@ void ICACHE_FLASH_ATTR setup(void)
 
 	tft_drawRoundRect(62, 8, 54, 24, 5, GREEN);
 
+	readConfigs();
+	ets_uart_printf("configs.nastr.DEFAULT_AP = %d\r\n", configs.nastr.DEFAULT_AP);
+	//configs.nastr.DEFAULT_AP = 0;
+	if(configs.nastr.DEFAULT_AP == 0)
+			 setup_wifi_ap_mode();
+		else setup_wifi_st_mode();
 
-	setup_wifi_ap_mode();
+	ets_uart_printf("configs.nastr.SSID = %s\r\n", configs.nastr.SSID);
+	ets_uart_printf("configs.nastr.SSID_PASS = %s\r\n", configs.nastr.SSID_PASS);
+
 	UDP_Init();
 
-	ets_uart_printf("DS init start\r\n");
+
 	ds18b20_init();
 	temperArrInit(temperature);
 
 	//saveConfigs();
-	readConfigs();
+
 	print_icon(208, 8, BLUE, 0x5f, 2);
 
 	// Start loop timer
 	os_timer_disarm(&loop_timer);
 	os_timer_setfn(&loop_timer, (os_timer_func_t *) loop_timer_cb, NULL);
 	os_timer_arm(&loop_timer, LOOP_PERIOD, true);
+}
+//======================= GPIO interrupt callback =======================================================
+extern uint8_t pin_num[GPIO_PIN_NUM];
+//=======================
+void ICACHE_FLASH_ATTR button_intr_callback(unsigned pin, unsigned level)
+{
+	ets_uart_printf("INTERRUPT: Set default AP\r\n");
+	if(configs.nastr.DEFAULT_AP != 0)
+	{
+		configs.nastr.DEFAULT_AP = 0;
+		saveConfigs();
+	}
+}
+//======================= GPIO init function ============================================================
+void ICACHE_FLASH_ATTR button_init(void)
+{
+	// Pin number 3 = GPIO0
+	GPIO_INT_TYPE gpio_type;
+	uint8_t gpio_pin = 1;
+
+	gpio_type = GPIO_PIN_INTR_NEGEDGE;
+	if (set_gpio_mode(gpio_pin, GPIO_FLOAT, GPIO_INT)) {
+		ets_uart_printf("GPIO%d set interrupt mode\r\n", pin_num[gpio_pin]);
+		if (gpio_intr_init(gpio_pin, gpio_type)) {
+			ets_uart_printf("GPIO%d enable %s mode\r\n", pin_num[gpio_pin], "NEG EDGE");
+			gpio_intr_attach(button_intr_callback);
+		} else {
+			ets_uart_printf("Error: GPIO%d not enable %s mode\r\n", pin_num[gpio_pin], "NEG EDGE");
+		}
+	} else {
+		ets_uart_printf("Error: GPIO%d not set interrupt mode\r\n",  pin_num[gpio_pin]);
+	}
 }
 //==============================================================================
 void ICACHE_FLASH_ATTR user_init(void)
@@ -147,6 +170,7 @@ void ICACHE_FLASH_ATTR user_init(void)
 	wifi_station_set_auto_connect(0);
 
 
+	button_init();
 	// Start setup timer
 		os_timer_disarm(&loop_timer);
 		os_timer_setfn(&loop_timer, (os_timer_func_t *) setup, NULL);

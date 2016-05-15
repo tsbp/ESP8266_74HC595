@@ -64,48 +64,6 @@ int getDayOfWeek(void)
   return a;
 }
 //==============================================================================
-void ICACHE_FLASH_ATTR printDate (void)
-{
-  int i, k;
-
-  char_6x8(30, 70, GREEN, BLUE, ' ');
-  if(date_time.DATE.day >= 10)
-  {
-	  k = 30;
-	  char_6x8(k, 70, GREEN, BLUE, date_time.DATE.day/10 + 0x30);k += 12;
-  }
-  else k = 36;
-
-  char_6x8(k, 70, GREEN, BLUE, date_time.DATE.day%10 + 0x30);k += 12;
-  char_6x8(k, 70, GREEN, BLUE, ' ');k += 12;
-
-  for (i = 0; i < 3; i++)
-  {
-	  char_6x8(k, 70, GREEN, BLUE, Months[date_time.DATE.month][i]);
-	  k += 12;
-  }
-
-  char_6x8(k, 70, GREEN, BLUE, ' ');k += 16;
-  char_6x8(k, 70, GREEN, BLUE, date_time.DATE.year/1000     + 0x30);k += 12;
-  char_6x8(k, 70, GREEN, BLUE, date_time.DATE.year%1000/100 + 0x30);k += 12;
-  char_6x8(k, 70, GREEN, BLUE, date_time.DATE.year%100/10   + 0x30);k += 12;
-  char_6x8(k, 70, GREEN, BLUE, date_time.DATE.year%10       + 0x30);k += 12;
-  char_6x8(k, 70, GREEN, BLUE, ','); k += 12;
-
-  int m, Y = date_time.DATE.year;
-  if (date_time.DATE.month < 2) { Y = Y - 1; m = date_time.DATE.month + 13;}
-  else                          {            m = date_time.DATE.month + 1;}
-  dayOfWeek = getDayOfWeek();
-
-  for (i = 0; i < 3; i++)
-  {
-	  char_6x8(k, 70, GREEN, BLUE, Days[dayOfWeek][i]);
-	  k += 12;
-  }
-
-  char_6x8(k, 70, GREEN, BLUE, ' ');
-}
-//==============================================================================
 void ICACHE_FLASH_ATTR timeIncrement(void)
 {
   date_time.TIME.sec++;
@@ -263,23 +221,20 @@ uint32 ICACHE_FLASH_ATTR getSetTemperature()  // return ptr to set temper to INF
   else                      { aDay = configs.nastr.day[aDayNumber - 2]; }
   
   //ets_uart_printf("aDay = %c\r\n", aDay);
-  u_CONFIG_u cPtr = (aDay == 'H') ? configs.cfg[1] : configs.cfg[0];
+  u_CONFIG_u cPtr;// = (aDay == 'H') ? configs.cfg[1] : configs.cfg[0];
 
-  if(aDay == 'H') print_icon(8, 8, 0xff7f7f, 0x5f, 4);
-  else            print_icon(8, 8, 0x7f00, 0x5f, 5);
+  if(aDay == 'H'){ cPtr = configs.cfg[1]; print_icon(8, 8, 0xff7f7f, 0x5f, 4);}
+  else           { cPtr = configs.cfg[0]; print_icon(8, 8, 0x7f00, 0x5f, 5);}
 
   cPtr = (aDay == 'H') ? configs.cfg[1] : configs.cfg[0];
       
   uint32 curPeriod = 0;
-  //ets_uart_printf("periodsCnt = %d\r\n", (configs.periodsCnt & 0x000000ff) - '0');
 
-  for(curPeriod = 0; curPeriod < ((cPtr.periodsCnt & 0x000000ff) - '0' - 1); curPeriod++)
+  for(curPeriod = 0; curPeriod < (cPtr.periodsCnt - '0' - 1); curPeriod++)
   {
 	uint32 a = cPtr.pConfig[curPeriod + 1].hmStart;
-	//ets_uart_printf("curPeriod = %d\r\n", curPeriod);
-    unsigned int end = (((a>>24) - '0') * 10 +   (((a>>16) & 0x00000ff) - '0')) * 60 +
+	unsigned int end = (((a>>24) - '0') * 10 +   (((a>>16) & 0x00000ff) - '0')) * 60 +
                        ((((a>>8) & 0x00000ff) - '0') * 10 +   ((a & 0x00000ff) - '0'));
-    //ets_uart_printf("end = %d\r\n", end);
     if(aTime < end)  break;     
   }
 
@@ -295,18 +250,7 @@ uint32 ICACHE_FLASH_ATTR getSetTemperature()  // return ptr to set temper to INF
   char_6x8(120 + 28 , 12 , 0x7f00, 0x5f, ',');
   char_6x8(132 + 28 , 12 , 0x7f00, 0x5f, configs.nastr.delta%10 + '0');
 
-//    Gotoxy(0,2);
-//	print_char((char) (aDay));
-//	print_char((char) (cPtr.pConfig[curPeriod].temperature >> 16));
-//	print_char((char) (cPtr.pConfig[curPeriod].temperature >> 8));
-//	print_char((char) (cPtr.pConfig[curPeriod].temperature));
-//	print_char((char) (' '));
-//
-//  ets_uart_printf("Current temp is %c%c%c%c ^C\r\n",
-//		  (char)(cPtr.pConfig[curPeriod].temperature>>24),
-//				  (char)(cPtr.pConfig[curPeriod].temperature>>16),
-//						  (char)(cPtr.pConfig[curPeriod].temperature>>8),
-//								  (char)(cPtr.pConfig[curPeriod].temperature));
+
   return cPtr.pConfig[curPeriod].temperature;
 }
 //==============================================================================
@@ -330,4 +274,18 @@ unsigned char ICACHE_FLASH_ATTR cmpTemperature (unsigned char *aT, signed int ar
   
 
  return out; 
+}
+//==============================================================================
+void ICACHE_FLASH_ATTR showTemperature(uint16 aX, uint16 aY, unsigned char *aBuf)
+{
+	if (aBuf[0] == '+')
+				printDigit_16x32(aX, 105, GREEN, BLUE, 11);
+			else
+				printDigit_16x32(aX, 105, GREEN, BLUE, 12);
+
+			printDigit_16x32(aX+16, 105, GREEN, BLUE, aBuf[1] - '0');
+			printDigit_16x32(aX+16*2, 105, GREEN, BLUE, aBuf[2] - '0');
+			printDigit_16x32(aX+16*3, 105, GREEN, BLUE, 10);
+			printDigit_16x32(aX+16*4, 105, GREEN, BLUE, aBuf[3] - '0');
+
 }
