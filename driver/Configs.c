@@ -16,9 +16,9 @@ s_DATE_TIME date_time = {.DATE.day   = 25,
                          .TIME.hour = 16,
                          .TIME.min = 24};
 unsigned char daysInMonth[]  = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-const char   Months[12][3] = {{"янв"},{"фев"},{"мар"},{"апр"},{"май"},{"июн"},
-                              {"июл"},{"авг"},{"сен"},{"окт"},{"ноя"},{"дек"}};
-const char   Days[7][3]    = {{"СБТ"},{"ВСК"},{"ПОН"},{"ВТО"},{"СРД"},{"ЧТВ"},{"ПТН"}};
+//const char   Months[12][3] = {{"янв"},{"фев"},{"мар"},{"апр"},{"май"},{"июн"},
+//                              {"июл"},{"авг"},{"сен"},{"окт"},{"ноя"},{"дек"}};
+//const char   Days[7][3]    = {{"СБТ"},{"ВСК"},{"ПОН"},{"ВТО"},{"СРД"},{"ЧТВ"},{"ПТН"}};
 int  dayOfWeek;
 //==============================================================================
 void ICACHE_FLASH_ATTR printTime(void)
@@ -115,7 +115,7 @@ void ICACHE_FLASH_ATTR timeUpdate(char *aPtr)
 }
 //==============================================================================
 //=============================================================================
-u_CONFIG configs/* = {
+u_CONFIG configs /*= {
 		.cfg[0].periodsCnt = 0x30303036,
 		.cfg[0].pConfig[0].hmStart = 0x30303030, .cfg[0].pConfig[0].temperature = 0x30313930,
 		.cfg[0].pConfig[1].hmStart = 0x30363030, .cfg[0].pConfig[1].temperature = 0x30323232,
@@ -139,8 +139,10 @@ u_CONFIG configs/* = {
 		.nastr.day[4] = 'W',
 		.nastr.day[5] = 'H',
 		.nastr.day[6] = 'H',
-        .nastr.SSID = "Radiy",
-        .nastr.SSID_PASS = "12345678"}*/;
+		.hwSettings.wifi.mode = SOFTAP_MODE,
+		.hwSettings.wifi.auth = AUTH_OPEN,
+		.hwSettings.wifi.SSID = "HA-HA-HA",
+        .hwSettings.wifi.SSID_PASS = "12345678"}*/;
 ////==============================================================================
 //u_NASTROYKI nastroyki = {.interval = 600, .delta = 5,
 //                             .day[0] = 'W',
@@ -276,16 +278,16 @@ unsigned char ICACHE_FLASH_ATTR cmpTemperature (unsigned char *aT, signed int ar
  return out; 
 }
 //==============================================================================
-void ICACHE_FLASH_ATTR showTemperature(uint16 aX, uint16 aY, unsigned char *aBuf)
+void ICACHE_FLASH_ATTR showTemperature(uint8 aSwap, unsigned char *aBuf)
 {
 	if (aBuf[0] == '+')
-				printDigit_16x32(aX, 105, GREEN, BLUE, 11);
+				printDigit_16x32(20 + aSwap*115, 98, GREEN, 0x1f, 11);
 			else
-				printDigit_16x32(aX, 105, GREEN, BLUE, 12);
+				printDigit_16x32(20 + aSwap*115, 98, GREEN, 0x1f, 12);
 
-			printDigit_16x32(aX+16, 105, GREEN, BLUE, aBuf[1] - '0');
-			printDigit_16x32(aX+16*2, 105, GREEN, BLUE, aBuf[2] - '0');
-			printDigit_16x32(aX+16*3, 105, GREEN, BLUE, 10);
-			printDigit_16x32(aX+16*4, 105, GREEN, BLUE, aBuf[3] - '0');
+			printDigit_16x32(20+16 + aSwap*115, 98, GREEN, 0x1f, aBuf[1] - '0');
+			printDigit_16x32(20+16*2 + aSwap*115, 98, GREEN, 0x1f, aBuf[2] - '0');
+			printDigit_16x32(20+16*3 + aSwap*115, 98, GREEN, 0x1f, 10);
+			printDigit_16x32(20+16*4 + aSwap*115, 98, GREEN, 0x1f, aBuf[3] - '0');
 
 }

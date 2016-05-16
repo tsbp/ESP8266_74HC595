@@ -3,8 +3,8 @@
 #include "driver/N2730LCD.h"
 #include "driver/LCD_GRAPHIC.h"
 //==============================================================================
-signed int tBuffer[POINTS_CNT];// = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-signed int tBuffer2[POINTS_CNT];// = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+signed int tBuffer[2][POINTS_CNT];// = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+//signed int tBuffer2[POINTS_CNT];// = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 unsigned int plotIntervalCntr;// = nastroyki -> interval;
 //==============================================================================
 void ICACHE_FLASH_ATTR  valueToBuffer(signed int aVal, signed int *aBuf)

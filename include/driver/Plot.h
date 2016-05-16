@@ -22,9 +22,9 @@
 #define VGRID_CNT        (10)
 #define VGRID_SPACING    (PLOT_HEIGH / VGRID_CNT)
 //==============================================================================
-#define PLOT_INTERVAL   (600)
+#define PLOT_INTERVAL   (60)
 //==============================================================================
-extern signed int tBuffer[POINTS_CNT], tBuffer2[POINTS_CNT];
+extern signed int tBuffer[2][POINTS_CNT];
 extern unsigned int plotIntervalCntr;
 //==============================================================================
 void ICACHE_FLASH_ATTR valueToBuffer(signed int aVal, signed int *aBuf);

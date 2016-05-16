@@ -13,6 +13,7 @@
 #include "driver/gpio16.h"
 #include "driver/LCD_GRAPHIC.h"
 #include "driver/plot.h"
+#include "driver/services.h"
 //==============================================================================
 extern int ets_uart_printf(const char *fmt, ...);
 int (*console_printf)(const char *fmt, ...) = ets_uart_printf;
@@ -26,6 +27,7 @@ static void  loop_timer_cb(os_event_t *events);
 
 static char temperature[2][POINTS_CNT][4];
 
+uint8 swap = 0;
 //==============================================================================
 void ICACHE_FLASH_ATTR loop_timer_cb(os_event_t *events)
 {
@@ -34,12 +36,10 @@ void ICACHE_FLASH_ATTR loop_timer_cb(os_event_t *events)
 	ds18b20(1, temp[1]);
 	ds18b20_Convert();
 
-
 	//=========== show temperature ===================
-	showTemperature(20,  105, temp[0]);
-	showTemperature(132, 105, temp[1]);
-	addValueToArray(temp[0], temperature[0], NON_ROTATE);
-	addValueToArray(temp[1], temperature[1], NON_ROTATE);
+	swap ^= 1;
+	showTemperature(swap, temp[swap]);
+	addValueToArray(temp[swap], temperature[swap], NON_ROTATE);
 	//================================================
 	signed int a = (temp[0][3] - '0') + (temp[0][2] - '0') * 10	+ (temp[0][1] - '0') * 100;
 	signed int b = (temp[1][3] - '0') + (temp[1][2] - '0') * 10	+ (temp[1][1] - '0') * 100;
@@ -48,12 +48,17 @@ void ICACHE_FLASH_ATTR loop_timer_cb(os_event_t *events)
 	if (cntr)
 	{
 		cntr--;
-		uint32 t = getSetTemperature();
-		cmpTemperature ((unsigned char *)(&t), a);
+		if(cntr == 0) 							showGraphic(tBuffer[0], 160, 0x0000a0);
+		else if (cntr == (PLOT_INTERVAL - 1)) 	showGraphic(tBuffer[1], 240, 0x5b5b00);
+		else
+		{
+			uint32 t = getSetTemperature();
+			cmpTemperature ((unsigned char *)(&t), a);
+		}
 	}
 	else
 	{
-		cntr = 60;
+		cntr = PLOT_INTERVAL;
 		ets_uart_printf("T1 = %s, T2 = \r\n", temp[0]);
 		addValueToArray(temp[0], temperature[0], ROTATE);
 		addValueToArray(temp[1], temperature[1], ROTATE);
@@ -65,10 +70,10 @@ void ICACHE_FLASH_ATTR loop_timer_cb(os_event_t *events)
 			a = a * (-1);
 		if (temp[1][0] == '-')
 			b = b * (-1);
-		valueToBuffer(a, tBuffer);
-		valueToBuffer(b, tBuffer2);
-		showGraphic(tBuffer, 160, 0x0000a0);
-		showGraphic(tBuffer2, 240, 0x5b5b00);
+		valueToBuffer(a, tBuffer[0]);
+		valueToBuffer(b, tBuffer[1]);
+//		showGraphic(tBuffer[0], 160, 0x0000a0);
+//		showGraphic(tBuffer[1], 240, 0x5b5b00);
 	}
 	mergeAnswerWith(temperature);
 
@@ -77,40 +82,50 @@ void ICACHE_FLASH_ATTR loop_timer_cb(os_event_t *events)
 	printTime();
 	//sendUDPbroadcast();
 
-
-
-
 }
 //==============================================================================
 void ICACHE_FLASH_ATTR setup(void)
 {
 
-	// HSPI init
 	hspi_init();
 	LCD_wakeup();
+	//saveConfigs();
+	readConfigs();
+
+	printString (10, 240, BLACK, WHITE, configs.hwSettings.wifi.SSID);
+	printString (10, 256, BLACK, WHITE, configs.hwSettings.wifi.SSID_PASS);
+
+
 	//====== Draw screen =======
 	tft_fillRect(0, 0, 240, 40, 0x5f);
-	tft_fillRect(0, 40, 240, 40, 0x1f);
-	tft_fillRect(0, 80, 240, 80, BLUE);
+	tft_fillRect(0, 40, 240, 120, 0x1f);
+	//tft_fillRect(0, 80, 240, 80, BLUE);
 
 	//tft_fillRect(34, 8, 54, 24, 0xff00ff);
 
-	tft_fillRoundRect(10, 90, 105, 60, 20, YELLOW);
-	tft_fillRoundRect(15, 95, 95, 50, 15, BLUE);
-	tft_fillRoundRect(125, 90, 105, 60, 20, GREEN);
-	tft_fillRoundRect(130, 95, 95, 50, 15, BLUE);
+	tft_fillRoundRect(10, 84, 105, 60, 20, YELLOW);
+	tft_fillRoundRect(15, 89, 95, 50, 15, 0x1f);
+	tft_fillRoundRect(125, 84, 105, 60, 20, GREEN);
+	tft_fillRoundRect(130, 89, 95, 50, 15, 0x1f);
 
 	tft_drawRoundRect(62, 8, 54, 24, 5, GREEN);
 
-	readConfigs();
-	ets_uart_printf("configs.nastr.DEFAULT_AP = %d\r\n", configs.nastr.DEFAULT_AP);
-	//configs.nastr.DEFAULT_AP = 0;
-	if(configs.nastr.DEFAULT_AP == 0)
-			 setup_wifi_ap_mode();
-		else setup_wifi_st_mode();
 
-	ets_uart_printf("configs.nastr.SSID = %s\r\n", configs.nastr.SSID);
-	ets_uart_printf("configs.nastr.SSID_PASS = %s\r\n", configs.nastr.SSID_PASS);
+	ets_uart_printf("configs.hwSettings.wifi.mode = %d\r\n", configs.hwSettings.wifi.mode);
+	//configs.nastr.DEFAULT_AP = 0;
+	if(configs.hwSettings.wifi.mode == SOFTAP_MODE)
+	{
+		print_icon(182, 8, BLUE|GREEN, 0x5f, 6);
+		setup_wifi_ap_mode();
+	}
+	else
+	{
+		print_icon(182, 8, BLUE|GREEN, 0x5f, 7);
+		setup_wifi_st_mode();
+	}
+
+	ets_uart_printf("configs.nastr.SSID = %s\r\n", configs.hwSettings.wifi.SSID);
+	ets_uart_printf("configs.nastr.SSID_PASS = %s\r\n", configs.hwSettings.wifi.SSID_PASS);
 
 	UDP_Init();
 
@@ -127,38 +142,6 @@ void ICACHE_FLASH_ATTR setup(void)
 	os_timer_setfn(&loop_timer, (os_timer_func_t *) loop_timer_cb, NULL);
 	os_timer_arm(&loop_timer, LOOP_PERIOD, true);
 }
-//======================= GPIO interrupt callback =======================================================
-extern uint8_t pin_num[GPIO_PIN_NUM];
-//=======================
-void ICACHE_FLASH_ATTR button_intr_callback(unsigned pin, unsigned level)
-{
-	ets_uart_printf("INTERRUPT: Set default AP\r\n");
-	if(configs.nastr.DEFAULT_AP != 0)
-	{
-		configs.nastr.DEFAULT_AP = 0;
-		saveConfigs();
-	}
-}
-//======================= GPIO init function ============================================================
-void ICACHE_FLASH_ATTR button_init(void)
-{
-	// Pin number 3 = GPIO0
-	GPIO_INT_TYPE gpio_type;
-	uint8_t gpio_pin = 1;
-
-	gpio_type = GPIO_PIN_INTR_NEGEDGE;
-	if (set_gpio_mode(gpio_pin, GPIO_FLOAT, GPIO_INT)) {
-		ets_uart_printf("GPIO%d set interrupt mode\r\n", pin_num[gpio_pin]);
-		if (gpio_intr_init(gpio_pin, gpio_type)) {
-			ets_uart_printf("GPIO%d enable %s mode\r\n", pin_num[gpio_pin], "NEG EDGE");
-			gpio_intr_attach(button_intr_callback);
-		} else {
-			ets_uart_printf("Error: GPIO%d not enable %s mode\r\n", pin_num[gpio_pin], "NEG EDGE");
-		}
-	} else {
-		ets_uart_printf("Error: GPIO%d not set interrupt mode\r\n",  pin_num[gpio_pin]);
-	}
-}
 //==============================================================================
 void ICACHE_FLASH_ATTR user_init(void)
 {
@@ -171,6 +154,7 @@ void ICACHE_FLASH_ATTR user_init(void)
 
 
 	button_init();
+
 	// Start setup timer
 		os_timer_disarm(&loop_timer);
 		os_timer_setfn(&loop_timer, (os_timer_func_t *) setup, NULL);

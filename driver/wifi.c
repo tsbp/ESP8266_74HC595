@@ -17,9 +17,9 @@ void setup_wifi_ap_mode(void)
 		wifi_softap_dhcps_stop();
 		os_memset(apconfig.ssid, 0, sizeof(apconfig.ssid));
 		os_memset(apconfig.password, 0, sizeof(apconfig.password));
-		apconfig.ssid_len = os_sprintf(apconfig.ssid, "HA-HA-HA");
-		os_sprintf(apconfig.password, "%s", "qwertyuiop");
-		apconfig.authmode = AUTH_OPEN;//AUTH_WPA_WPA2_PSK;
+		apconfig.ssid_len = os_sprintf(apconfig.ssid, configs.hwSettings.wifi.SSID);//"HA-HA-HA");
+		os_sprintf(apconfig.password, "%s", configs.hwSettings.wifi.SSID_PASS);//"qwertyuiop");
+		apconfig.authmode = configs.hwSettings.wifi.auth;//AUTH_OPEN;//AUTH_WPA_WPA2_PSK;
 		apconfig.ssid_hidden = 0;
 		apconfig.channel = 7;
 		apconfig.max_connection = 4;
@@ -52,10 +52,10 @@ void ICACHE_FLASH_ATTR setup_wifi_st_mode(void)
 	{
 		os_memset(stconfig.ssid, 0, sizeof(stconfig.ssid));
 		os_memset(stconfig.password, 0, sizeof(stconfig.password));
-		os_sprintf(stconfig.ssid, "%s", configs.nastr.SSID);
-		os_sprintf(stconfig.password, "%s", configs.nastr.SSID_PASS);
-		ets_uart_printf("\r\nSTA SSID:%s", configs.nastr.SSID);
-		ets_uart_printf("\r\nSTA SSIDPAS:%s\r\n", configs.nastr.SSID_PASS);
+		os_sprintf(stconfig.ssid, "%s", configs.hwSettings.wifi.SSID);
+		os_sprintf(stconfig.password, "%s", configs.hwSettings.wifi.SSID_PASS);
+		ets_uart_printf("\r\nSTA SSID:%s", configs.hwSettings.wifi.SSID);
+		ets_uart_printf("\r\nSTA SSIDPAS:%s\r\n", configs.hwSettings.wifi.SSID_PASS);
 		if(!wifi_station_set_config(&stconfig))
 		{
 			ets_uart_printf("ESP8266 not set station config!\r\n");

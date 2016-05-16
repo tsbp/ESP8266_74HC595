@@ -10,7 +10,7 @@
 #include "mem.h"
 #include "driver/UDP_Source.h"
 #include "driver/DS18B20_PR.h"
-//#include "driver/lcd1100.h"
+#include "driver/services.h"
 #include "driver/configs.h"
 //=========================================================================================
 extern u_CONFIG configs;
@@ -177,29 +177,31 @@ void UDP_Recieved(void *arg, char *pusrdata, unsigned short length)
 		if (pusrdata[0] == 'S' && pusrdata[1] == 'S'	&& pusrdata[2] == 'I' && pusrdata[3] == 'D')
 		{
 			int i, j;
-			for(i = 0; i < sizeof(configs.nastr.SSID); i++)
-				configs.nastr.SSID[i] = 0;
-			for(i = 0; i < sizeof(configs.nastr.SSID_PASS); i++)
-				configs.nastr.SSID_PASS[i] = 0;
+			for(i = 0; i < sizeof(configs.hwSettings.wifi.SSID); i++)
+				configs.hwSettings.wifi.SSID[i] = 0;
+			for(i = 0; i < sizeof(configs.hwSettings.wifi.SSID_PASS); i++)
+				configs.hwSettings.wifi.SSID_PASS[i] = 0;
 
 			for(i = 4; i < length; i++)
 			{
 				if (pusrdata[i] == '$') break;
-				else configs.nastr.SSID[i-4] = pusrdata[i];
+				else configs.hwSettings.wifi.SSID[i-4] = pusrdata[i];
 			}
 			j = i++;
 			j = i++;
 
 			for(i=j; i < length; i++)
 			{
-				configs.nastr.SSID_PASS[i-j] = pusrdata[i];
+				configs.hwSettings.wifi.SSID_PASS[i-j] = pusrdata[i];
 				//ets_uart_printf("i=%d, j=%d, data[%c]\r\n", i, j, pusrdata[i]);
 			}
 
 //			ets_uart_printf("new ssid and ssidpass received\r\n");
 //			ets_uart_printf("%s\r\n", configs.nastr.SSID);
 //			ets_uart_printf("%s\r\n", configs.nastr.SSID_PASS);
-			configs.nastr.DEFAULT_AP = 0xff;
+			configs.hwSettings.wifi.mode = STATION_MODE;
+			serviceMode = MODE_SW_RESET;
+			service_timer_start();
 			flashWriteBit = 1;
 		}
 		//========= read ustanovki ===========================
@@ -210,7 +212,7 @@ void UDP_Recieved(void *arg, char *pusrdata, unsigned short length)
 			data[4] = '.';
 			data[5] = configs.nastr.delta%10 + '0';
 			data[6] = 'S';
-			data[7] = configs.nastr.swapSens;
+			data[7] = configs.hwSettings.swapSens;
 			//flashWriteBit = 1;
 			espconn_sent(pesp_conn, data, 8);
 		}
@@ -218,7 +220,7 @@ void UDP_Recieved(void *arg, char *pusrdata, unsigned short length)
 		if (pusrdata[0] == 'S' && pusrdata[1] == 'U'	&& pusrdata[2] == 'S' && pusrdata[3] == 'T')
 		{
 			configs.nastr.delta = (pusrdata[4]-'0')*10 + (pusrdata[6]-'0');
-			configs.nastr.swapSens = pusrdata[8];
+			configs.hwSettings.swapSens = pusrdata[8];
 			flashWriteBit = 1;
 		}
 
@@ -226,9 +228,9 @@ void UDP_Recieved(void *arg, char *pusrdata, unsigned short length)
        }
  }
 
-void UDP_sent_callback (void *arg){
-
-	ets_uart_printf("++UDP_SEND_CB\r\n");
-
-}
+//void UDP_sent_callback (void *arg){
+//
+//	ets_uart_printf("++UDP_SEND_CB\r\n");
+//
+//}
 
