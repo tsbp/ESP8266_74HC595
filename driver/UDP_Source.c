@@ -75,18 +75,21 @@ void ICACHE_FLASH_ATTR sendUDPbroadcast(void)
 void UDP_Recieved(void *arg, char *pusrdata, unsigned short length)
  {
 
-	 ets_uart_printf("recv udp data: %s\n", pusrdata);
+	 ets_uart_printf("recv udp data: %s\r\n", pusrdata);
      struct espconn *pesp_conn = arg;
      uint8 flashWriteBit = 0;
 
        remot_info *premot = NULL;
        //sint8 value = ESPCONN_OK;
        if (espconn_get_connection_info(pesp_conn,&premot,0) == ESPCONN_OK){
-             pesp_conn->proto.udp->remote_port = premot->remote_port;
+             pesp_conn->proto.udp->remote_port = 7777;
              pesp_conn->proto.udp->remote_ip[0] = premot->remote_ip[0];
              pesp_conn->proto.udp->remote_ip[1] = premot->remote_ip[1];
              pesp_conn->proto.udp->remote_ip[2] = premot->remote_ip[2];
              pesp_conn->proto.udp->remote_ip[3] = premot->remote_ip[3];
+
+             ets_uart_printf("recv udp ip: %d.%d.%d.%d\r\n", premot->remote_ip[0], premot->remote_ip[1], premot->remote_ip[2], premot->remote_ip[3]);
+             ets_uart_printf("recv udp port: %d\r\n", premot->remote_port);
 
              int shift = 0xff;
 
@@ -174,35 +177,36 @@ void UDP_Recieved(void *arg, char *pusrdata, unsigned short length)
 			espconn_sent(pesp_conn, "OKW", 3);
 		}
 		//========= save week configs ===========================
-		if (pusrdata[0] == 'S' && pusrdata[1] == 'S'	&& pusrdata[2] == 'I' && pusrdata[3] == 'D')
+		if (pusrdata[0] == 'H' && pusrdata[1] == 'W'	&& pusrdata[2] == 'C' && pusrdata[3] == 'F' && pusrdata[4] == 'G')
 		{
 			int i, j;
-			for(i = 0; i < sizeof(configs.hwSettings.wifi.SSID); i++)
-				configs.hwSettings.wifi.SSID[i] = 0;
-			for(i = 0; i < sizeof(configs.hwSettings.wifi.SSID_PASS); i++)
-				configs.hwSettings.wifi.SSID_PASS[i] = 0;
+			os_memset(configs.hwSettings.wifi.SSID, 0, sizeof(configs.hwSettings.wifi.SSID));
+			os_memset(configs.hwSettings.wifi.SSID_PASS, 0, sizeof(configs.hwSettings.wifi.SSID_PASS));
 
-			for(i = 4; i < length; i++)
+
+
+			for(i = 5; i < length; i++)
 			{
 				if (pusrdata[i] == '$') break;
-				else configs.hwSettings.wifi.SSID[i-4] = pusrdata[i];
+				else configs.hwSettings.byte[i-5] = pusrdata[i];
+				//ets_uart_printf("i=%d, j=%d, data[%02x]\r\n", i, pusrdata[i]);
 			}
-			j = i++;
-			j = i++;
 
-			for(i=j; i < length; i++)
+			j = i+1;
+			for(i = j; i < length; i++)
 			{
 				configs.hwSettings.wifi.SSID_PASS[i-j] = pusrdata[i];
-				//ets_uart_printf("i=%d, j=%d, data[%c]\r\n", i, j, pusrdata[i]);
+				//ets_uart_printf("i=%d, j=%d, data[%02x]\r\n", i, pusrdata[i]);
 			}
 
 //			ets_uart_printf("new ssid and ssidpass received\r\n");
-//			ets_uart_printf("%s\r\n", configs.nastr.SSID);
-//			ets_uart_printf("%s\r\n", configs.nastr.SSID_PASS);
-			configs.hwSettings.wifi.mode = STATION_MODE;
+//			ets_uart_printf("%s\r\n", configs.hwSettings.wifi.SSID_PASS);
+//			ets_uart_printf("%s\r\n", configs.hwSettings.wifi.SSID);
+			//configs.hwSettings.wifi.mode = STATION_MODE;
 			serviceMode = MODE_SW_RESET;
 			service_timer_start();
 			flashWriteBit = 1;
+			espconn_sent(pesp_conn, "SAVED", 5);
 		}
 		//========= read ustanovki ===========================
 		if (pusrdata[0] == 'G' && pusrdata[1] == 'U'	&& pusrdata[2] == 'S' && pusrdata[3] == 'T')

@@ -39,8 +39,11 @@ typedef union
   };
 }u_NASTROYKI;
 //==============================================================================
-#define SENSOR_REMOTE			(0x5b)
-#define DEVICE_MODE_MAIN		(0xa0)
+#define SENSOR_MODE_LOCAL			(0x00)
+#define SENSOR_MODE_REMOTE			(0x01)
+
+#define DEVICE_MODE_MASTER			(0x00)
+#define DEVICE_MODE_SLAVE			(0x01)
 //==============================================================================
 typedef struct __attribute__ ((__packed__))
 {
@@ -55,15 +58,19 @@ typedef struct __attribute__ ((__packed__))
 	uint8 SSID_PASS[64];
 }s_WIFI_CFG;
 //==============================================================================
-typedef struct __attribute__ ((__packed__))
+typedef union __attribute__ ((__packed__))
 {
-	uint8 deviceMode;
-	s_SENS_MODE sensor[2];
-	uint8 swapSens;
-	s_WIFI_CFG wifi;
+	uint8 byte[102];
+	struct __attribute__ ((__packed__))
+	{
+		uint8 deviceMode;
+		s_SENS_MODE sensor[2];
+		uint8 swapSens;
+		s_WIFI_CFG wifi;
+	};
 }u_HARDWARE_SETTINGS;
 //==============================================================================
-#define PERIODS_CNT     (6)
+#define PERIODS_CNT     (10)
 //==============================================================================
 typedef union
 {

@@ -127,6 +127,7 @@ void ICACHE_FLASH_ATTR printDigit_16x24 (unsigned int aX, unsigned int aY, unsig
 void ICACHE_FLASH_ATTR printDigitT_16x24 (unsigned int aX, unsigned int aY, unsigned long aCOL, unsigned long aBGCOL, unsigned char aChar);
 void ICACHE_FLASH_ATTR printDigit_16x32 (unsigned int aX, unsigned int aY, unsigned long aCOL, unsigned long aBGCOL, unsigned char aChar);
 void ICACHE_FLASH_ATTR printString (unsigned int aX, unsigned int aY, unsigned long aCOL, unsigned long aBGCOL, unsigned char *aStr);
+void ICACHE_FLASH_ATTR printStringS (unsigned int aX, unsigned int aY, unsigned long aCOL, unsigned long aBGCOL, unsigned char *aStr);
 void ICACHE_FLASH_ATTR print_icon (unsigned int aX, unsigned int aY, unsigned long aCOL, unsigned long aBGCOL, unsigned char aChar);
 
 #endif /* INCLUDE_DRIVER_N2730LCD_H_ */

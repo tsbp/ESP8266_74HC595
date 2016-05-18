@@ -89,7 +89,7 @@ void ICACHE_FLASH_ATTR setup(void)
 
 	hspi_init();
 	LCD_wakeup();
-	//saveConfigs();
+//	saveConfigs();
 	readConfigs();
 
 	printString (10, 240, BLACK, WHITE, configs.hwSettings.wifi.SSID);
@@ -108,17 +108,24 @@ void ICACHE_FLASH_ATTR setup(void)
 	tft_fillRoundRect(125, 84, 105, 60, 20, GREEN);
 	tft_fillRoundRect(130, 89, 95, 50, 15, 0x1f);
 
+	if		(configs.hwSettings.sensor[0].mode == SENSOR_MODE_REMOTE) printStringS(50, 147, GREEN, 0x1f, "REMOTE");
+	else if	(configs.hwSettings.sensor[0].mode == SENSOR_MODE_LOCAL)  printStringS(50, 147, GREEN, 0x1f, "LOCAL");
+
+	if		(configs.hwSettings.sensor[1].mode == SENSOR_MODE_REMOTE) printStringS(165, 147, GREEN, 0x1f, "REMOTE");
+	else if	(configs.hwSettings.sensor[1].mode == SENSOR_MODE_LOCAL)  printStringS(165, 147, GREEN, 0x1f, "LOCAL");
+
 	tft_drawRoundRect(62, 8, 54, 24, 5, GREEN);
 
 
 	ets_uart_printf("configs.hwSettings.wifi.mode = %d\r\n", configs.hwSettings.wifi.mode);
 	//configs.nastr.DEFAULT_AP = 0;
+	//configs.hwSettings.wifi.mode = SOFTAP_MODE;
 	if(configs.hwSettings.wifi.mode == SOFTAP_MODE)
 	{
 		print_icon(182, 8, BLUE|GREEN, 0x5f, 6);
 		setup_wifi_ap_mode();
 	}
-	else
+	else if(configs.hwSettings.wifi.mode == STATION_MODE)
 	{
 		print_icon(182, 8, BLUE|GREEN, 0x5f, 7);
 		setup_wifi_st_mode();
@@ -135,7 +142,8 @@ void ICACHE_FLASH_ATTR setup(void)
 
 	//saveConfigs();
 
-	print_icon(208, 8, BLUE, 0x5f, 2);
+	if      (configs.hwSettings.deviceMode == DEVICE_MODE_MASTER) print_icon(208, 8, BLUE, 0x5f, 2);
+	else if (configs.hwSettings.deviceMode == DEVICE_MODE_SLAVE)  print_icon(208, 8, BLUE, 0x5f, 3);
 
 	// Start loop timer
 	os_timer_disarm(&loop_timer);
