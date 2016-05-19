@@ -105,29 +105,35 @@ void UDP_Recieved(void *arg, char *pusrdata, unsigned short length)
             	 espconn_sent(pesp_conn, ans[shift + (pusrdata[1] - '0')-1], 30);
              }
 
-        //========= read day configs ===========================
-		if (pusrdata[0] == 'C' && pusrdata[1] == 'O' && pusrdata[2] == 'N' && pusrdata[3] == 'F')
-		{
-			u_CONFIG_u ptr = (pusrdata[4] == 'H') ? configs.cfg[1] : configs.cfg[0];
+             //========= Remote temperature ===========================
+             if (pusrdata[0] == 'R' && pusrdata[1] == 'T' && pusrdata[2] == 'M' && pusrdata[3] == 'P')
+             {
 
-			char cBuf[10];
-			cBuf[0] = 'C';
-			cBuf[1] = pusrdata[5];
-			cBuf[2] = (char)(ptr.periodsCnt);
-			cBuf[3] = (char)(ptr.pConfig[pusrdata[5]- '0' - 1].hmStart >> 24);
-			cBuf[4] = (char)(ptr.pConfig[pusrdata[5]- '0' - 1].hmStart >> 16);
-			cBuf[5] = (char)(ptr.pConfig[pusrdata[5]- '0' - 1].hmStart >> 8);
-			cBuf[6] = (char)(ptr.pConfig[pusrdata[5]- '0' - 1].hmStart);
-			cBuf[7] = (char)(ptr.pConfig[pusrdata[5]- '0' - 1].temperature >> 16);
-			cBuf[8] = (char)(ptr.pConfig[pusrdata[5]- '0' - 1].temperature >> 8);
-			cBuf[9] = (char)(ptr.pConfig[pusrdata[5]- '0' - 1].temperature);
-			cBuf[10] = 0x0a;
-			cBuf[11] = 0x0d;
+             }
 
-			ets_uart_printf("cur config[%c] %s \r\n", pusrdata[5], cBuf);
+			//========= read day configs ===========================
+			if (pusrdata[0] == 'C' && pusrdata[1] == 'O' && pusrdata[2] == 'N' && pusrdata[3] == 'F')
+			{
+				u_CONFIG_u ptr = (pusrdata[4] == 'H') ? configs.cfg[1] : configs.cfg[0];
 
-			espconn_sent(pesp_conn, cBuf, 12);
-		}
+				char cBuf[10];
+				cBuf[0] = 'C';
+				cBuf[1] = pusrdata[5];
+				cBuf[2] = (char)(ptr.periodsCnt);
+				cBuf[3] = (char)(ptr.pConfig[pusrdata[5]- '0' - 1].hmStart >> 24);
+				cBuf[4] = (char)(ptr.pConfig[pusrdata[5]- '0' - 1].hmStart >> 16);
+				cBuf[5] = (char)(ptr.pConfig[pusrdata[5]- '0' - 1].hmStart >> 8);
+				cBuf[6] = (char)(ptr.pConfig[pusrdata[5]- '0' - 1].hmStart);
+				cBuf[7] = (char)(ptr.pConfig[pusrdata[5]- '0' - 1].temperature >> 16);
+				cBuf[8] = (char)(ptr.pConfig[pusrdata[5]- '0' - 1].temperature >> 8);
+				cBuf[9] = (char)(ptr.pConfig[pusrdata[5]- '0' - 1].temperature);
+				cBuf[10] = 0x0a;
+				cBuf[11] = 0x0d;
+
+				ets_uart_printf("cur config[%c] %s \r\n", pusrdata[5], cBuf);
+
+				espconn_sent(pesp_conn, cBuf, 12);
+			}
 		//========= save day configs ===========================
 		if (pusrdata[0] == 'C' && pusrdata[1] == 'S' && pusrdata[2] == 'A' && pusrdata[3] == 'V')
 		{

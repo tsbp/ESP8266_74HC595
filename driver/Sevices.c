@@ -19,6 +19,8 @@ static volatile os_timer_t service_timer;
 static void  service_timer_cb(os_event_t *events);
 uint8_t factory_reset_pin = 2;
 uint8	serviceMode = MODE_NORMAL;
+
+char tData[2][4];
 //==============================================================================
 void ICACHE_FLASH_ATTR service_timer_start (void)
 {

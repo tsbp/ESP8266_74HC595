@@ -51,4 +51,6 @@ int read_bit(void);
 uint8_t crc8(const uint8_t *addr, uint8_t len);
 uint16_t crc16(const uint16_t *data, const uint16_t  len);
 
+extern int DevicesCount;
+
 #endif

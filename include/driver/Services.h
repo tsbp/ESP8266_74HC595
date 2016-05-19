@@ -20,5 +20,6 @@ void ICACHE_FLASH_ATTR button_init(void);
 #define MODE_BTN_RESET	(2)
 //==============================================================================
 extern uint8	serviceMode;
+extern char tData[2][4];
 //==============================================================================
 #endif /* INCLUDE_DRIVER_SERVICES_H_ */

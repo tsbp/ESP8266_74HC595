@@ -28,21 +28,42 @@ static void  loop_timer_cb(os_event_t *events);
 static char temperature[2][POINTS_CNT][4];
 
 uint8 swap = 0;
+
+typedef union __packed
+{
+	uint8 byte[12];
+	struct
+	{
+		uint8 head[4];
+		uint8 sData[2][4];
+	};
+}u_REMOTE_TEMP;
+u_REMOTE_TEMP remoteTemp = {.head = "RTMP",
+                            .sData[0] = "0000",
+							.sData[1] = "0000"};
 //==============================================================================
 void ICACHE_FLASH_ATTR loop_timer_cb(os_event_t *events)
 {
-	char temp[2][4];
-	ds18b20(0, temp[0]);
-	ds18b20(1, temp[1]);
+	int i,j;
+
+	for(i = 0; i < DevicesCount; i++)
+		{
+		   ds18b20(i, tData[i]);
+		   if(configs.hwSettings.sensor[0].mode == SENSOR_MODE_LOCAL)
+			   for(i = 0; i < 2; i++)
+			   			for(j = 0; j < 4; j++) remoteTemp.sData[i][j] = tData[i][j];
+		}
 	ds18b20_Convert();
+
+
 
 	//=========== show temperature ===================
 	swap ^= 1;
-	showTemperature(swap, temp[swap]);
-	addValueToArray(temp[swap], temperature[swap], NON_ROTATE);
+	showTemperature(swap, tData[swap]);
+	addValueToArray(tData[swap], temperature[swap], NON_ROTATE);
 	//================================================
-	signed int a = (temp[0][3] - '0') + (temp[0][2] - '0') * 10	+ (temp[0][1] - '0') * 100;
-	signed int b = (temp[1][3] - '0') + (temp[1][2] - '0') * 10	+ (temp[1][1] - '0') * 100;
+	signed int a = (tData[0][3] - '0') + (tData[0][2] - '0') * 10	+ (tData[0][1] - '0') * 100;
+	signed int b = (tData[1][3] - '0') + (tData[1][2] - '0') * 10	+ (tData[1][1] - '0') * 100;
 
 	static int cntr = 5;
 	if (cntr)
@@ -59,21 +80,19 @@ void ICACHE_FLASH_ATTR loop_timer_cb(os_event_t *events)
 	else
 	{
 		cntr = PLOT_INTERVAL;
-		ets_uart_printf("T1 = %s, T2 = \r\n", temp[0]);
-		addValueToArray(temp[0], temperature[0], ROTATE);
-		addValueToArray(temp[1], temperature[1], ROTATE);
+		ets_uart_printf("T1 = %s, T2 = \r\n", tData[0]);
+		addValueToArray(tData[0], temperature[0], ROTATE);
+		addValueToArray(tData[1], temperature[1], ROTATE);
 		//mergeAnswerWith(temperature);
 
 		//===== graphic ========
 
-		if (temp[0][0] == '-')
+		if (tData[0][0] == '-')
 			a = a * (-1);
-		if (temp[1][0] == '-')
+		if (tData[1][0] == '-')
 			b = b * (-1);
 		valueToBuffer(a, tBuffer[0]);
 		valueToBuffer(b, tBuffer[1]);
-//		showGraphic(tBuffer[0], 160, 0x0000a0);
-//		showGraphic(tBuffer[1], 240, 0x5b5b00);
 	}
 	mergeAnswerWith(temperature);
 
