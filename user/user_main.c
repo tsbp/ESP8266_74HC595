@@ -87,9 +87,12 @@ void ICACHE_FLASH_ATTR loop_timer_cb(os_event_t *events)
 	mergeAnswerWith(temperature);
 
 	//================================================
-	timeIncrement();
+//	timeIncrement();
 	printTime();
-	//sendUDPbroadcast();
+
+//	if(configs.hwSettings.sensor[0].mode == SENSOR_MODE_LOCAL ||
+//				configs.hwSettings.sensor[1].mode == SENSOR_MODE_LOCAL)
+//		sendUDPbroadcast(remoteTemp.byte, (uint16)sizeof(remoteTemp));
 
 }
 //==============================================================================
@@ -143,7 +146,7 @@ void ICACHE_FLASH_ATTR setup(void)
 	ets_uart_printf("configs.nastr.SSID = %s\r\n", configs.hwSettings.wifi.SSID);
 	ets_uart_printf("configs.nastr.SSID_PASS = %s\r\n", configs.hwSettings.wifi.SSID_PASS);
 
-	UDP_Init();
+	UDP_Init_client();
 
 
 	ds18b20_init();

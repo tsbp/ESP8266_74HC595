@@ -17,7 +17,6 @@ typedef struct
   }DATE;
   union
   {
-
     unsigned char byte[3];
     struct
     {
@@ -27,6 +26,7 @@ typedef struct
     };
   }TIME;
 }s_DATE_TIME;
+extern s_DATE_TIME date_time;
 //==============================================================================
 typedef union
 {

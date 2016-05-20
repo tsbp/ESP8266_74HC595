@@ -94,6 +94,11 @@ void ICACHE_FLASH_ATTR timeIncrement(void)
   }
 }
 //==============================================================================
+void ICACHE_FLASH_ATTR timeUpdateUDP(uint8 *aPtr)
+{
+
+}
+//==============================================================================
 void ICACHE_FLASH_ATTR timeUpdate(char *aPtr)
 {
 	ets_uart_printf("Time update: %s\r\n", aPtr);
