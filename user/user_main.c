@@ -88,6 +88,12 @@ void ICACHE_FLASH_ATTR loop_timer_cb(os_event_t *events)
 
 	//================================================
 //	timeIncrement();
+	if(configs.hwSettings.deviceMode == DEVICE_MODE_MASTER)
+	{
+
+			timeIncrement();
+			//sendUDPbroadcast(remoteTemp.byte, (uint16)sizeof(remoteTemp));
+		}
 	printTime();
 
 //	if(configs.hwSettings.sensor[0].mode == SENSOR_MODE_LOCAL ||

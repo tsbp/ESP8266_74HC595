@@ -55,3 +55,10 @@ build/app.out
 *.out
 *.a
 *.o
+*.out
+*.o
+*.bin
+Makefile
+*.out
+build/app_app.a
+*.o
