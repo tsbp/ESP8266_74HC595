@@ -50,3 +50,5 @@ Temporary Items
 build/app.out
 *.a
 firmware/0x00000.bin
+build/app.out
+*.out
