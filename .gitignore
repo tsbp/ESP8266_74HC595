@@ -45,3 +45,8 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+*.out
+*.out
+build/app.out
+*.a
+firmware/0x00000.bin

@@ -21,6 +21,10 @@ uint8_t factory_reset_pin = 2;
 uint8	serviceMode = MODE_NORMAL;
 
 char tData[2][4];
+
+u_REMOTE_TEMP remoteTemp = {.head = "RTMP",
+                            .sData[0] = "0000",
+							.sData[1] = "0000"};
 //==============================================================================
 void ICACHE_FLASH_ATTR service_timer_start (void)
 {

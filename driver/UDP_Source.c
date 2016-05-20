@@ -108,6 +108,11 @@ void UDP_Recieved(void *arg, char *pusrdata, unsigned short length)
              //========= Remote temperature ===========================
              if (pusrdata[0] == 'R' && pusrdata[1] == 'T' && pusrdata[2] == 'M' && pusrdata[3] == 'P')
              {
+            	 int i,j;
+
+            	 	for(i = 0; i < 2; i++)
+            	 		if(configs.hwSettings.sensor[i].mode == SENSOR_MODE_REMOTE)
+            	 			for(j = 0; j < 4; j++) tData[i][j] = pusrdata[4 + i*4 +j];
 
              }
 

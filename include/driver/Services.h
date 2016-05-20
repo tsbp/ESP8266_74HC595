@@ -22,4 +22,15 @@ void ICACHE_FLASH_ATTR button_init(void);
 extern uint8	serviceMode;
 extern char tData[2][4];
 //==============================================================================
+typedef union __packed
+{
+	uint8 byte[12];
+	struct
+	{
+		uint8 head[4];
+		uint8 sData[2][4];
+	};
+}u_REMOTE_TEMP;
+extern u_REMOTE_TEMP remoteTemp;
+//==============================================================================
 #endif /* INCLUDE_DRIVER_SERVICES_H_ */

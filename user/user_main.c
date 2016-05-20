@@ -29,18 +29,6 @@ static char temperature[2][POINTS_CNT][4];
 
 uint8 swap = 0;
 
-typedef union __packed
-{
-	uint8 byte[12];
-	struct
-	{
-		uint8 head[4];
-		uint8 sData[2][4];
-	};
-}u_REMOTE_TEMP;
-u_REMOTE_TEMP remoteTemp = {.head = "RTMP",
-                            .sData[0] = "0000",
-							.sData[1] = "0000"};
 //==============================================================================
 void ICACHE_FLASH_ATTR loop_timer_cb(os_event_t *events)
 {
@@ -48,10 +36,12 @@ void ICACHE_FLASH_ATTR loop_timer_cb(os_event_t *events)
 
 	for(i = 0; i < DevicesCount; i++)
 		{
-		   ds18b20(i, tData[i]);
-		   if(configs.hwSettings.sensor[0].mode == SENSOR_MODE_LOCAL)
-			   for(i = 0; i < 2; i++)
-			   			for(j = 0; j < 4; j++) remoteTemp.sData[i][j] = tData[i][j];
+
+		   if(configs.hwSettings.sensor[i].mode == SENSOR_MODE_LOCAL)
+		   {
+			   ds18b20(i, tData[i]);
+			   for(j = 0; j < 4; j++) remoteTemp.sData[i][j] = tData[i][j];
+		   }
 		}
 	ds18b20_Convert();
 
