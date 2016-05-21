@@ -32,21 +32,8 @@ uint8 swap = 0;
 //==============================================================================
 void ICACHE_FLASH_ATTR loop_timer_cb(os_event_t *events)
 {
-	int i,j;
-
-	for(i = 0; i < DevicesCount; i++)
-		{
-
-		   if(configs.hwSettings.sensor[i].mode == SENSOR_MODE_LOCAL)
-		   {
-			   ds18b20(i, tData[i]);
-			   for(j = 0; j < 4; j++) remoteTemp.sData[i][j] = tData[i][j];
-		   }
-		}
-	ds18b20_Convert();
-
-
-
+	//=========== get temperature ===================
+	getTemperature();
 	//=========== show temperature ===================
 	swap ^= 1;
 	showTemperature(swap, tData[swap]);

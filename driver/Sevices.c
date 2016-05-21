@@ -5,14 +5,11 @@
 #include "user_interface.h"
 #include "gpio.h"
 #include "driver/uart.h"
-#include "driver/N2730LCD.h"
 #include "driver/DS18B20_PR.h"
 #include "driver/Configs.h"
 #include "driver/UDP_Source.h"
 #include "driver/wifi.h"
 #include "driver/gpio16.h"
-#include "driver/LCD_GRAPHIC.h"
-#include "driver/plot.h"
 #include "driver/services.h"
 //==============================================================================
 static volatile os_timer_t service_timer;
@@ -61,11 +58,41 @@ void ICACHE_FLASH_ATTR button_init(void)
 		if (gpio_intr_init(factory_reset_pin, gpio_type))  gpio_intr_attach(button_intr_callback);
 }
 //==============================================================================
+void ICACHE_FLASH_ATTR getTemperature(void)
+{
+	int i,j,e;
+	if (configs.hwSettings.sensor[0].mode == SENSOR_MODE_LOCAL && configs.hwSettings.sensor[1].mode == SENSOR_MODE_LOCAL)
+		e = DevicesCount;
+	else e = 1;
+
+	for(i = 0; i < e; i++)
+		{
+
+		  if(configs.hwSettings.sensor[i].mode == SENSOR_MODE_LOCAL)
+		  {
+			 ds18b20(i, tData[i]);
+			 for(j = 0; j < 4; j++) remoteTemp.sData[i][j] = tData[i][j];
+		}
+	}
+	ds18b20_Convert();
+}
+//==============================================================================
 static void ICACHE_FLASH_ATTR service_timer_cb(os_event_t *events) {
 
 
 	switch (serviceMode)
 	{
+	    case MODE_REMOTE_CONTROL:
+	    	resetCntr++;
+	    	if (resetCntr > 5)
+	    	{
+	    		service_timer_stop();
+	    		resetCntr = 0;
+	    		serviceMode = MODE_NORMAL;
+	    		channelFree = 1;
+	    	}
+	    	break;
+
 		case MODE_BTN_RESET:
 				if (gpio_read(factory_reset_pin) == 0)
 				{
@@ -74,11 +101,9 @@ static void ICACHE_FLASH_ATTR service_timer_cb(os_event_t *events) {
 					{
 						os_printf("do reset \r\n");
 						configs.hwSettings.wifi.mode = SOFTAP_MODE;
-						configs.hwSettings.wifi.auth = AUTH_OPEN;
-						//os_memset(&conf_ram_flash_buffer[sizeof(s_CONFIGS) - sizeof(s_WIFI_CONFIG)], 0xff, sizeof(s_WIFI_CONFIG));
+						configs.hwSettings.wifi.auth = AUTH_OPEN;						
 						saveConfigs();
-						system_restart();
-						//mode= MODE_C_PROCEED;
+						system_restart();					
 					}
 				} else {
 					service_timer_stop();
