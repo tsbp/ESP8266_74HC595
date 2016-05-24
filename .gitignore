@@ -66,3 +66,7 @@ build/app_app.a
 build/app_app.a
 *.o
 *.bin
+*.out
+build/app_app.a
+*.o
+*.bin

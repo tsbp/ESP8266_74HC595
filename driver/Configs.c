@@ -9,6 +9,7 @@
 #include "user_interface.h"
 #include "driver/N2730LCD.h"
 #include "driver/Configs.h"
+#include "driver/services.h"
 //==============================================================================
 s_DATE_TIME date_time = {.DATE.day   = 25,
                          .DATE.month = 1,
@@ -16,9 +17,6 @@ s_DATE_TIME date_time = {.DATE.day   = 25,
                          .TIME.hour = 16,
                          .TIME.min = 24};
 unsigned char daysInMonth[]  = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-//const char   Months[12][3] = {{"янв"},{"фев"},{"мар"},{"апр"},{"май"},{"июн"},
-//                              {"июл"},{"авг"},{"сен"},{"окт"},{"ноя"},{"дек"}};
-//const char   Days[7][3]    = {{"СБТ"},{"ВСК"},{"ПОН"},{"ВТО"},{"СРД"},{"ЧТВ"},{"ПТН"}};
 int  dayOfWeek;
 //==============================================================================
 void ICACHE_FLASH_ATTR printTime(void)
@@ -92,11 +90,15 @@ void ICACHE_FLASH_ATTR timeIncrement(void)
       }
     }
   }
-}
-//==============================================================================
-void ICACHE_FLASH_ATTR timeUpdateUDP(uint8 *aPtr)
-{
-
+        remoteTemp.timeData[0] = (uint8) date_time.TIME.sec;
+  		remoteTemp.timeData[1] = (uint8) date_time.TIME.min;
+  		remoteTemp.timeData[2] = (uint8) date_time.TIME.hour;
+  		remoteTemp.timeData[3] = (uint8) date_time.DATE.day;
+  		remoteTemp.timeData[4] = (uint8) date_time.DATE.month;
+  		remoteTemp.timeData[5] = (uint8) (date_time.DATE.year - 2000);
+//  		int i;
+//  		for (i = 0; i < 6; i++) ets_uart_printf("%d ",  remoteTemp.timeData[i]);
+//  					ets_uart_printf("\r\n");
 }
 //==============================================================================
 void ICACHE_FLASH_ATTR timeUpdate(char *aPtr)
@@ -118,9 +120,8 @@ void ICACHE_FLASH_ATTR timeUpdate(char *aPtr)
 	                  date_time.TIME.sec   = (aPtr[19] - '0')*10 +
 	                                         (aPtr[20] - '0');
 }
-//==============================================================================
 //=============================================================================
-u_CONFIG configs /*= {
+u_CONFIG configs/* = {
 		.cfg[0].periodsCnt = 0x30303036,
 		.cfg[0].pConfig[0].hmStart = 0x30303030, .cfg[0].pConfig[0].temperature = 0x30313930,
 		.cfg[0].pConfig[1].hmStart = 0x30363030, .cfg[0].pConfig[1].temperature = 0x30323232,
@@ -146,8 +147,8 @@ u_CONFIG configs /*= {
 		.nastr.day[6] = 'H',
 		.hwSettings.wifi.mode = SOFTAP_MODE,
 		.hwSettings.wifi.auth = AUTH_OPEN,
-		.hwSettings.wifi.SSID = "HA-HA-HA",
-        .hwSettings.wifi.SSID_PASS = "12345678"}*/;
+		.hwSettings.wifi.SSID = "voodoo",
+        .hwSettings.wifi.SSID_PASS = "eminem82"}*/;
 ////==============================================================================
 //u_NASTROYKI nastroyki = {.interval = 600, .delta = 5,
 //                             .day[0] = 'W',
@@ -211,10 +212,10 @@ void ICACHE_FLASH_ATTR readConfigs(void) {
 
 }
 //==============================================================================
-uint32 ICACHE_FLASH_ATTR getSetTemperature()  // return ptr to set temper to INFO
+uint32 ICACHE_FLASH_ATTR getSetTemperature()  
 {
-	 //ets_uart_printf("aTime = %d\r\n", aTime);
-	unsigned int aTime = date_time.TIME.hour * 60 + date_time.TIME.min;
+	 
+  unsigned int aTime = date_time.TIME.hour * 60 + date_time.TIME.min;
 
   int aDayNumber = getDayOfWeek();
   //ets_uart_printf("aDayNumber = %d\r\n", aDayNumber);
@@ -223,11 +224,10 @@ uint32 ICACHE_FLASH_ATTR getSetTemperature()  // return ptr to set temper to INF
   u_CONFIG *aPtr;
   unsigned long col;
   
-  if      (aDayNumber == 0) { aDay = configs.nastr.day[5];}
-  else if (aDayNumber == 1) { aDay = configs.nastr.day[6]; }
-  else                      { aDay = configs.nastr.day[aDayNumber - 2]; }
+  if      (aDayNumber == 0)  aDay = configs.nastr.day[5];
+  else if (aDayNumber == 1)  aDay = configs.nastr.day[6]; 
+  else                       aDay = configs.nastr.day[aDayNumber - 2]; 
   
-  //ets_uart_printf("aDay = %c\r\n", aDay);
   u_CONFIG_u cPtr;// = (aDay == 'H') ? configs.cfg[1] : configs.cfg[0];
 
   if(aDay == 'H'){ cPtr = configs.cfg[1]; print_icon(8, 8, 0xff7f7f, 0x5f, 4);}
@@ -266,8 +266,7 @@ unsigned char ICACHE_FLASH_ATTR cmpTemperature (unsigned char *aT, signed int ar
   static unsigned char out = 0;
 
   int tmp = (aT[2] - '0') * 100 + (aT[1] - '0') * 10 + (aT[0] - '0');
-
-  //ets_uart_printf("arcTemper = %d, tmp = %d, delta = %d\r\n", arcTemper, tmp, configs.nastr.delta);
+  
   if      (arcTemper > tmp + (configs.nastr.delta))
   {
 	print_icon(34, 8, GREEN, 0x5f, 1);

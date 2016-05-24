@@ -48,7 +48,7 @@ void ICACHE_FLASH_ATTR loop_timer_cb(os_event_t *events)
 		cntr--;
 		if(cntr == 0) 							showGraphic(tBuffer[0], 160, 0x0000a0);
 		else if (cntr == (PLOT_INTERVAL - 1)) 	showGraphic(tBuffer[1], 240, 0x5b5b00);
-		else
+		else //if(configs.hwSettings.deviceMode == DEVICE_MODE_MASTER)
 		{
 			uint32 t = getSetTemperature();
 			cmpTemperature ((unsigned char *)(&t), a);
@@ -74,19 +74,12 @@ void ICACHE_FLASH_ATTR loop_timer_cb(os_event_t *events)
 	mergeAnswerWith(temperature);
 
 	//================================================
-//	timeIncrement();
 	if(configs.hwSettings.deviceMode == DEVICE_MODE_MASTER)
 	{
-
-			timeIncrement();
-			//sendUDPbroadcast(remoteTemp.byte, (uint16)sizeof(remoteTemp));
-		}
+		timeIncrement();
+		sendUDPbroadcast(remoteTemp.byte, (uint16)sizeof(remoteTemp));
+	}
 	printTime();
-
-//	if(configs.hwSettings.sensor[0].mode == SENSOR_MODE_LOCAL ||
-//				configs.hwSettings.sensor[1].mode == SENSOR_MODE_LOCAL)
-//		sendUDPbroadcast(remoteTemp.byte, (uint16)sizeof(remoteTemp));
-
 }
 //==============================================================================
 void ICACHE_FLASH_ATTR setup(void)
@@ -94,7 +87,7 @@ void ICACHE_FLASH_ATTR setup(void)
 
 	hspi_init();
 	LCD_wakeup();
-//	saveConfigs();
+	//saveConfigs();
 	readConfigs();
 
 	printString (10, 240, BLACK, WHITE, configs.hwSettings.wifi.SSID);
@@ -174,3 +167,27 @@ void ICACHE_FLASH_ATTR user_init(void)
 		os_timer_arm(&loop_timer, 500, false);
 
 }
+
+
+//int r = wifi_station_get_connect_status();
+//switch(r)
+//	{
+//		case STATION_GOT_IP:
+//			ets_uart_printf("WiFi connected, ip.addr is null\r\n");
+//			break;
+//
+//		case STATION_WRONG_PASSWORD:
+//			ets_uart_printf("WiFi connecting error, wrong password\r\n");
+//			break;
+//
+//		case STATION_NO_AP_FOUND:
+//			ets_uart_printf("WiFi connecting error, ap not found\r\n");
+//			break;
+//
+//		case STATION_CONNECT_FAIL:
+//			ets_uart_printf("WiFi connecting fail\r\n");
+//			break;
+//
+//		default:
+//			ets_uart_printf("r = %d. WiFi connecting...\r\n", r);
+//	}

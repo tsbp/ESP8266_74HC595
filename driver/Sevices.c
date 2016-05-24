@@ -68,7 +68,7 @@ void ICACHE_FLASH_ATTR getTemperature(void)
 	for(i = 0; i < e; i++)
 		{
 
-		  if(configs.hwSettings.sensor[i].mode == SENSOR_MODE_LOCAL)
+		  //if(configs.hwSettings.sensor[i].mode == SENSOR_MODE_LOCAL)
 		  {
 			 ds18b20(i, tData[i]);
 			 for(j = 0; j < 4; j++) remoteTemp.sData[i][j] = tData[i][j];
