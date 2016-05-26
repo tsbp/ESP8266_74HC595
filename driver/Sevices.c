@@ -61,19 +61,27 @@ void ICACHE_FLASH_ATTR button_init(void)
 void ICACHE_FLASH_ATTR getTemperature(void)
 {
 	int i,j,e;
-	if (configs.hwSettings.sensor[0].mode == SENSOR_MODE_LOCAL && configs.hwSettings.sensor[1].mode == SENSOR_MODE_LOCAL)
-		e = DevicesCount;
-	else e = 1;
+	int ptr[2] = {0, 1};
 
-	for(i = 0; i < e; i++)
+	if (configs.hwSettings.sensor[0].mode != configs.hwSettings.sensor[1].mode) // senors are different
+	{
+		e = 1;
+		if (configs.hwSettings.sensor[0].mode == SENSOR_MODE_REMOTE) // 0 - remote; 1 - local
 		{
-
-		  //if(configs.hwSettings.sensor[i].mode == SENSOR_MODE_LOCAL)
-		  {
-			 ds18b20(i, tData[i]);
-			 for(j = 0; j < 4; j++) remoteTemp.sData[i][j] = tData[i][j];
+			ptr[0] = 1;
+			ptr[1] = 0;
 		}
 	}
+	else if (configs.hwSettings.sensor[0].mode == SENSOR_MODE_LOCAL && configs.hwSettings.sensor[1].mode == SENSOR_MODE_LOCAL) // senors are local
+		e = DevicesCount;
+	else e = 0; // senors are remote
+
+	for(i = 0; i < e; i++)
+	{
+		ds18b20(i, tData[ptr[i]]);
+		for(j = 0; j < 4; j++) remoteTemp.sData[ptr[i]][j] = tData[ptr[i]][j];
+	}
+
 	ds18b20_Convert();
 }
 //==============================================================================

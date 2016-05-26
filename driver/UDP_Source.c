@@ -112,25 +112,26 @@ void UDP_Recieved(void *arg, char *pusrdata, unsigned short length) {
 		ets_uart_printf("recv udp port: %d\r\n", premot->remote_port);
 
 		//========= Remote temperature ===========================
-		if (pusrdata[0] == 'R' && pusrdata[1] == 'T' && pusrdata[2] == 'M'	&& pusrdata[3] == 'P')
-		{
-			int i, j, e;
+				if (pusrdata[0] == 'R' && pusrdata[1] == 'T' && pusrdata[2] == 'M'	&& pusrdata[3] == 'P')
+				{
+					int i, j, e;
 
-			if (configs.hwSettings.sensor[0].mode == SENSOR_MODE_REMOTE &&
-				configs.hwSettings.sensor[1].mode == SENSOR_MODE_REMOTE)
-				e = DevicesCount;
-			else e = 1;
+			for (i = 0; i < 2; i++)
+						if (configs.hwSettings.sensor[i].mode == SENSOR_MODE_REMOTE)
+							for (j = 0; j < 4; j++)
+								tData[i][j] = pusrdata[4 + i * 4 + j];
 
-			for (i = 0; i < e; i++)
-				if (configs.hwSettings.sensor[i].mode == SENSOR_MODE_REMOTE)
-					for (j = 0; j < 4; j++)
-						tData[i][j] = pusrdata[4 + i * 4 + j];
-
-			if(configs.hwSettings.deviceMode == DEVICE_MODE_SLAVE)
-			{
-					espconn_sent(pesp_conn,remoteTemp.byte, (uint16)sizeof(remoteTemp));
-			}
-		}
+					if(configs.hwSettings.deviceMode == DEVICE_MODE_SLAVE)
+					{
+						date_time.TIME.sec = pusrdata[12];
+						date_time.TIME.min = pusrdata[13];
+						date_time.TIME.hour = pusrdata[14];
+						date_time.DATE.day = pusrdata[15];
+						date_time.DATE.month = pusrdata[16];
+						date_time.DATE.year = pusrdata[17] + 2000;
+					    espconn_sent(pesp_conn,remoteTemp.byte, (uint16)sizeof(remoteTemp));
+					}
+				}
 		//========= save hardware configs ===========================
 		else if (pusrdata[0] == 'H' && pusrdata[1] == 'W' && pusrdata[2] == 'C' && pusrdata[3] == 'F' && pusrdata[4] == 'G')
 		{

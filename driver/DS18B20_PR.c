@@ -90,13 +90,10 @@ void ICACHE_FLASH_ATTR ds18b20(int aDevNumb, char * tPtr)
 			Whole = TReading >> 4;  // separate off the whole and fractional portions
 			Fract = (TReading & 0xf) * 10 / 16;
 
-			//console_printf("Temperature: %c%d.%d Celsius\r\n", SignBit ? '-' : '+', Whole, Fract < 10 ? 0 : Fract);
-			os_sprintf(tPtr, "%c%d%d", SignBit ? '-' : '+', Whole, Fract /*< 10 ? 0 : Fract*/);
-//			//============ perform the conversion ===========================
-//			reset();
-//			//select(device[0].data);
-//			write(DS1820_SKIP_ROM, 1);
-//			write(DS1820_CONVERT_T, 1);
+			tPtr[0] = SignBit ? '-' : '+';
+			tPtr[1] = Whole/10 + '0';
+			tPtr[2] = Whole%10 + '0';
+			tPtr[3] = Fract + '0';
 }
 void ICACHE_FLASH_ATTR ds18b20_Convert(void)
 {

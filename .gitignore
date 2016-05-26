@@ -70,3 +70,7 @@ build/app_app.a
 build/app_app.a
 *.o
 *.bin
+*.a
+*.o
+firmware/0x00000.bin
+*.bin

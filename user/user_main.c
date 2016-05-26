@@ -48,7 +48,7 @@ void ICACHE_FLASH_ATTR loop_timer_cb(os_event_t *events)
 		cntr--;
 		if(cntr == 0) 							showGraphic(tBuffer[0], 160, 0x0000a0);
 		else if (cntr == (PLOT_INTERVAL - 1)) 	showGraphic(tBuffer[1], 240, 0x5b5b00);
-		else //if(configs.hwSettings.deviceMode == DEVICE_MODE_MASTER)
+		else if(configs.hwSettings.deviceMode == DEVICE_MODE_MASTER)
 		{
 			uint32 t = getSetTemperature();
 			cmpTemperature ((unsigned char *)(&t), a);
@@ -73,11 +73,17 @@ void ICACHE_FLASH_ATTR loop_timer_cb(os_event_t *events)
 	}
 	mergeAnswerWith(temperature);
 
-	//================================================
+	//==========================================================================
 	if(configs.hwSettings.deviceMode == DEVICE_MODE_MASTER)
 	{
 		timeIncrement();
-		sendUDPbroadcast(remoteTemp.byte, (uint16)sizeof(remoteTemp));
+		//============= sendUDPbroadcast in DEVICE_MODE_MASTER =================
+		if(configs.hwSettings.wifi.mode == STATION_MODE)
+			if(wifi_station_get_connect_status() == STATION_GOT_IP)
+				sendUDPbroadcast(remoteTemp.byte, (uint16)sizeof(remoteTemp));
+		if(configs.hwSettings.wifi.mode == SOFTAP_MODE)
+			if(wifi_softap_get_station_num() > 0)
+				sendUDPbroadcast(remoteTemp.byte, (uint16)sizeof(remoteTemp));
 	}
 	printTime();
 }
@@ -112,7 +118,7 @@ void ICACHE_FLASH_ATTR setup(void)
 	if		(configs.hwSettings.sensor[1].mode == SENSOR_MODE_REMOTE) printStringS(165, 147, GREEN, 0x1f, "REMOTE");
 	else if	(configs.hwSettings.sensor[1].mode == SENSOR_MODE_LOCAL)  printStringS(165, 147, GREEN, 0x1f, "LOCAL");
 
-	tft_drawRoundRect(62, 8, 54, 24, 5, GREEN);
+
 
 
 	ets_uart_printf("configs.hwSettings.wifi.mode = %d\r\n", configs.hwSettings.wifi.mode);
@@ -140,7 +146,7 @@ void ICACHE_FLASH_ATTR setup(void)
 
 	//saveConfigs();
 
-	if      (configs.hwSettings.deviceMode == DEVICE_MODE_MASTER) print_icon(208, 8, BLUE, 0x5f, 2);
+	if      (configs.hwSettings.deviceMode == DEVICE_MODE_MASTER) { tft_drawRoundRect(62, 8, 54, 24, 5, GREEN); print_icon(208, 8, BLUE, 0x5f, 2);}
 	else if (configs.hwSettings.deviceMode == DEVICE_MODE_SLAVE)  print_icon(208, 8, BLUE, 0x5f, 3);
 
 	// Start loop timer
@@ -158,7 +164,7 @@ void ICACHE_FLASH_ATTR user_init(void)
 	wifi_station_disconnect();
 	wifi_station_set_auto_connect(0);
 
-
+	//system_update_cpu_freq(160);
 	button_init();
 
 	// Start setup timer
