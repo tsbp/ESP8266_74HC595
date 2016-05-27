@@ -46,8 +46,8 @@ void ICACHE_FLASH_ATTR loop_timer_cb(os_event_t *events)
 	if (cntr)
 	{
 		cntr--;
-		if(cntr == 0) 							showGraphic(tBuffer[0], 160, 0x0000a0);
-		else if (cntr == (PLOT_INTERVAL - 1)) 	showGraphic(tBuffer[1], 240, 0x5b5b00);
+		if(cntr == 0) 			showGraphic(tBuffer[0], 160, 0x0000a0);
+		else if (cntr == 1) 	showGraphic(tBuffer[1], 240, 0x5b5b00);
 		else if(configs.hwSettings.deviceMode == DEVICE_MODE_MASTER)
 		{
 			uint32 t = getSetTemperature();
