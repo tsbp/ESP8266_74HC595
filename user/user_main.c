@@ -4,6 +4,7 @@
 #include "os_type.h"
 #include "user_interface.h"
 #include "gpio.h"
+#include <gpio.h>
 #include "driver/uart.h"
 #include "driver/N2730LCD.h"
 #include "driver/DS18B20_PR.h"
@@ -51,7 +52,7 @@ void ICACHE_FLASH_ATTR loop_timer_cb(os_event_t *events)
 		else if(configs.hwSettings.deviceMode == DEVICE_MODE_MASTER)
 		{
 			uint32 t = getSetTemperature();
-			cmpTemperature ((unsigned char *)(&t), a);
+			gpio_write(1, cmpTemperature ((unsigned char *)(&t), a));
 		}
 	}
 	else
@@ -122,8 +123,6 @@ void ICACHE_FLASH_ATTR setup(void)
 
 
 	ets_uart_printf("configs.hwSettings.wifi.mode = %d\r\n", configs.hwSettings.wifi.mode);
-	//configs.nastr.DEFAULT_AP = 0;
-	//configs.hwSettings.wifi.mode = SOFTAP_MODE;
 	if(configs.hwSettings.wifi.mode == SOFTAP_MODE)
 	{
 		print_icon(182, 8, BLUE|GREEN, 0x5f, 6);
@@ -167,33 +166,11 @@ void ICACHE_FLASH_ATTR user_init(void)
 	//system_update_cpu_freq(160);
 	button_init();
 
+	set_gpio_mode(1,GPIO_PULLUP, GPIO_OUTPUT);
+
 	// Start setup timer
 		os_timer_disarm(&loop_timer);
 		os_timer_setfn(&loop_timer, (os_timer_func_t *) setup, NULL);
 		os_timer_arm(&loop_timer, 500, false);
 
 }
-
-
-//int r = wifi_station_get_connect_status();
-//switch(r)
-//	{
-//		case STATION_GOT_IP:
-//			ets_uart_printf("WiFi connected, ip.addr is null\r\n");
-//			break;
-//
-//		case STATION_WRONG_PASSWORD:
-//			ets_uart_printf("WiFi connecting error, wrong password\r\n");
-//			break;
-//
-//		case STATION_NO_AP_FOUND:
-//			ets_uart_printf("WiFi connecting error, ap not found\r\n");
-//			break;
-//
-//		case STATION_CONNECT_FAIL:
-//			ets_uart_printf("WiFi connecting fail\r\n");
-//			break;
-//
-//		default:
-//			ets_uart_printf("r = %d. WiFi connecting...\r\n", r);
-//	}

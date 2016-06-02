@@ -22,7 +22,7 @@
 #define VGRID_CNT        (10)
 #define VGRID_SPACING    (PLOT_HEIGH / VGRID_CNT)
 //==============================================================================
-#define PLOT_INTERVAL   (60)
+#define PLOT_INTERVAL   (900)
 //==============================================================================
 extern signed int tBuffer[2][POINTS_CNT];
 extern unsigned int plotIntervalCntr;
