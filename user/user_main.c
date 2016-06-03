@@ -108,9 +108,9 @@ void ICACHE_FLASH_ATTR setup(void)
 
 	//tft_fillRect(34, 8, 54, 24, 0xff00ff);
 
-	tft_fillRoundRect(10, 84, 105, 60, 20, YELLOW);
+	tft_fillRoundRect(10, 84, 105, 60, 20, BLUE);
 	tft_fillRoundRect(15, 89, 95, 50, 15, 0x1f);
-	tft_fillRoundRect(125, 84, 105, 60, 20, GREEN);
+	tft_fillRoundRect(125, 84, 105, 60, 20, YELLOW);
 	tft_fillRoundRect(130, 89, 95, 50, 15, 0x1f);
 
 	if		(configs.hwSettings.sensor[0].mode == SENSOR_MODE_REMOTE) printStringS(50, 147, GREEN, 0x1f, "REMOTE");
