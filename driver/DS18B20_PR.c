@@ -11,41 +11,6 @@
 //============================================================================================================================
 //uint8_t ow_addr[8];
 int SignBit, Whole, Fract;
-
-//============================================================================================================================
-void ICACHE_FLASH_ATTR addValueToArray(char * tPtr, char arPtr[POINTS_CNT][4], char aRot)
-{
-	int i,j;
-	if(aRot == ROTATE)
-	{
-		for(i = 0; i < POINTS_CNT-1; i++)
-				for(j = 0; j<4; j++)
-					arPtr[i][j] = arPtr[i+1][j];
-		//ets_uart_printf("rotated\r\n");
-
-	}
-	//else ets_uart_printf("non rotated\r\n");
-	for(i = 0; i<4; i++)
-		arPtr[POINTS_CNT-1][i] = tPtr[i];
-
-	//uart0_tx_buffer(arPtr[0], 24*4);
-	//ets_uart_printf("temp: %s\r\n", temperature);
-}
-//============================================================================================================================
-void ICACHE_FLASH_ATTR temperArrInit(char arPtr[2][POINTS_CNT][4] )
-{
-
-  int i, k;
-  for(k = 0; k < 2; k++)
-    for(i = 0; i < POINTS_CNT; i++)
-    {
-    	arPtr[k][i][0] = '+';
-    	arPtr[k][i][1] = '2';
-    	arPtr[k][i][2] = '2';
-    	arPtr[k][i][3] = '0';
-    }
-  mergeAnswerWith(arPtr);
-}
 //============================================================================================================================
 void  ICACHE_FLASH_ATTR ds18b20_init()
 {

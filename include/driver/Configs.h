@@ -28,14 +28,14 @@ typedef struct
 }s_DATE_TIME;
 extern s_DATE_TIME date_time;
 //==============================================================================
-typedef union
+typedef union __packed
 {
   uint32 byte[11];
-  struct
+  struct __packed
   {
-	uint32 day[7];
-    uint32 interval;
-    uint32 delta;
+	uint8 day[7];
+    uint16 interval;
+    uint8 delta;
   };
 }u_NASTROYKI;
 //==============================================================================
@@ -70,31 +70,32 @@ typedef union __attribute__ ((__packed__))
 	};
 }u_HARDWARE_SETTINGS;
 //==============================================================================
-#define PERIODS_CNT     (10)
+#define MAX_PERIODS_CNT     (10)
 //==============================================================================
-typedef union
+typedef union __packed
 {
-    uint32 byte[2];
-    struct
+    uint8 byte[4];
+    struct __packed
     {
-       uint32 hmStart;
-       uint32 temperature;
+       uint8 hStart;
+       uint8 mStart;
+       uint16 temperature;
     };
 }s_PCONFIG;
 //==============================================================================
-#define CONF_ARRAY_LENGTH (PERIODS_CNT * sizeof(s_PCONFIG))
+#define CONF_ARRAY_LENGTH (MAX_PERIODS_CNT * sizeof(s_PCONFIG))
 //==============================================================================
-typedef union
+typedef union __packed
 {
-  uint32 byte[1 + CONF_ARRAY_LENGTH];
-  struct
+  uint8 byte[1 + CONF_ARRAY_LENGTH];
+  struct __packed
   {
-    uint32 periodsCnt;
-    s_PCONFIG pConfig[PERIODS_CNT];
+    uint8 periodsCnt;
+    s_PCONFIG pConfig[MAX_PERIODS_CNT];
   };
 }u_CONFIG_u;
 //==============================================================================
-typedef struct
+typedef struct __packed
 {
 	u_CONFIG_u cfg[2];
 	u_NASTROYKI nastr;
@@ -102,27 +103,10 @@ typedef struct
 }u_CONFIG;
 //extern u_CONFIG configs;
 //==============================================================================
-typedef union
-{
-  unsigned char byte[sizeof(u_CONFIG) + 5];
-  struct
-  {
-    unsigned char  msgHeader;
-    unsigned char  msgNumber;
-    unsigned char  partsCount;
-    s_PCONFIG config;
-    unsigned char _0a;
-    unsigned char _0d;
-  };
-}u_CONFIG_TX_BUFFER;
-//extern u_CONFIG_TX_BUFFER configTXBuffer;
-
-//extern u_NASTROYKI *nastroyki;
-//==============================================================================
 extern u_CONFIG configs;
 extern u_CONFIG *cPtrH, *cPtrW;
 //==============================================================================
-uint32 ICACHE_FLASH_ATTR getSetTemperature(void);
-unsigned char ICACHE_FLASH_ATTR cmpTemperature (unsigned char *aT, signed int arcTemper);
+uint16 ICACHE_FLASH_ATTR getSetTemperature();
+unsigned char ICACHE_FLASH_ATTR cmpTemperature (uint16 aT, signed int arcTemper);
 void ICACHE_FLASH_ATTR showTemperature(uint8 aSwap, unsigned char *aBuf);
   

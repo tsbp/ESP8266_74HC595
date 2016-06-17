@@ -38,7 +38,7 @@ void ICACHE_FLASH_ATTR loop_timer_cb(os_event_t *events)
 	//=========== show temperature ===================
 	swap ^= 1;
 	showTemperature(swap, tData[swap]);
-	addValueToArray(tData[swap], temperature[swap], NON_ROTATE);
+	addValueToArray(tData[swap], plotData[swap], NON_ROTATE);
 	//================================================
 	signed int a = (tData[0][3] - '0') + (tData[0][2] - '0') * 10	+ (tData[0][1] - '0') * 100;
 	signed int b = (tData[1][3] - '0') + (tData[1][2] - '0') * 10	+ (tData[1][1] - '0') * 100;
@@ -51,17 +51,17 @@ void ICACHE_FLASH_ATTR loop_timer_cb(os_event_t *events)
 		else if (cntr == 1) 	showGraphic(tBuffer[1], 240, 0x5b5b00);
 		else if(configs.hwSettings.deviceMode == DEVICE_MODE_MASTER)
 		{
-			uint32 t = getSetTemperature();
-			gpio_write(1, cmpTemperature ((unsigned char *)(&t), a));
+			uint16 t = getSetTemperature();
+			gpio_write(1, cmpTemperature (t, a));
 		}
 	}
 	else
 	{
 		cntr = PLOT_INTERVAL;
 		ets_uart_printf("T1 = %s, T2 = \r\n", tData[0]);
-		addValueToArray(tData[0], temperature[0], ROTATE);
-		addValueToArray(tData[1], temperature[1], ROTATE);
-		//mergeAnswerWith(temperature);
+		addValueToArray(tData[0], plotData[0], ROTATE);
+		addValueToArray(tData[1], plotData[1], ROTATE);
+
 
 		//===== graphic ========
 
@@ -72,7 +72,7 @@ void ICACHE_FLASH_ATTR loop_timer_cb(os_event_t *events)
 		valueToBuffer(a, tBuffer[0]);
 		valueToBuffer(b, tBuffer[1]);
 	}
-	mergeAnswerWith(temperature);
+	//mergeAnswerWith(temperature);
 
 	//==========================================================================
 	if(configs.hwSettings.deviceMode == DEVICE_MODE_MASTER)
@@ -141,7 +141,7 @@ void ICACHE_FLASH_ATTR setup(void)
 
 
 	ds18b20_init();
-	temperArrInit(temperature);
+//	temperArrInit(temperature);
 
 	//saveConfigs();
 
