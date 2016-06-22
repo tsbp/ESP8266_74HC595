@@ -130,17 +130,18 @@ void UDP_Recieved(void *arg, char *pusrdata, unsigned short length)
 									for (i = 0; i < 2; i++)
 										if (configs.hwSettings.sensor[i].mode == SENSOR_MODE_REMOTE)
 											for (j = 0; j < 4; j++)
-												tData[i][j] = pusrdata[4 + i * 4 + j];
+												tData[i][j] = pusrdata[1 + i * 4 + j];
 
 									if(configs.hwSettings.deviceMode == DEVICE_MODE_SLAVE)
 									{
-										date_time.TIME.sec = pusrdata[12];
-										date_time.TIME.min = pusrdata[13];
-										date_time.TIME.hour = pusrdata[14];
-										date_time.DATE.day = pusrdata[15];
-										date_time.DATE.month = pusrdata[16];
-										date_time.DATE.year = pusrdata[17] + 2000;
-										espconn_sent(pesp_conn,remoteTemp.byte, (uint16)sizeof(remoteTemp));
+										date_time.TIME.sec = pusrdata[9];
+										date_time.TIME.min = pusrdata[10];
+										date_time.TIME.hour = pusrdata[11];
+										date_time.DATE.day = pusrdata[12];
+										date_time.DATE.month = pusrdata[13];
+										date_time.DATE.year = pusrdata[14] + 2000;
+
+								sendUDPbroadcast(remoteTemp.byte, (uint16)sizeof(remoteTemp));
 									}
 								}
 								break;
@@ -163,7 +164,11 @@ void UDP_Recieved(void *arg, char *pusrdata, unsigned short length)
 									serviceMode = MODE_SW_RESET;
 									service_timer_start();
 									flashWriteBit = 1;
-									espconn_sent(pesp_conn, "SAVED", 5);
+
+
+
+									char ans[] = {OK_ANS};
+									espconn_sent(pesp_conn, ans, 1);
 								}
 								break;
 		}
@@ -186,11 +191,7 @@ void UDP_Recieved(void *arg, char *pusrdata, unsigned short length)
 									timeUpdate(pusrdata);
 									int i;
 									for( i = 0; i < 24; i++)
-										{
 											plotDataPack.plotData[i] = plotData[pusrdata[1] >> 7][i];
-											ets_uart_printf("%02x ", plotDataPack.plotData[i]);
-										}
-									ets_uart_printf("\r\n");
 									espconn_sent(pesp_conn, plotDataPack.bytes, sizeof(s_PLOT_DATA_PACK));
 								}
 								break;

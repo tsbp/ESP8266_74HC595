@@ -19,7 +19,7 @@ uint8	serviceMode = MODE_NORMAL;
 
 char tData[2][4] = {"+000", "+000"};
 
-u_REMOTE_TEMP remoteTemp = {.head = "RTMP",
+u_REMOTE_TEMP remoteTemp = {.head = BROADCAST_DATA,
                             .sData[0] = "0000",
 							.sData[1] = "0000"};
 //==============================================================================
@@ -109,7 +109,7 @@ static void ICACHE_FLASH_ATTR service_timer_cb(os_event_t *events) {
 					{
 						os_printf("do reset \r\n");
 						configs.hwSettings.wifi.mode = SOFTAP_MODE;
-						configs.hwSettings.wifi.auth = AUTH_OPEN;						
+						configs.hwSettings.wifi.auth = AUTH_OPEN;
 						saveConfigs();
 						system_restart();					
 					}

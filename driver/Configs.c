@@ -57,9 +57,7 @@ int getDayOfWeek(void)
   else                          {            m = date_time.DATE.month + 1;}
 
   int a = (date_time.DATE.day + (26*(m+1)/10) + Y + Y/4 + 6*Y/100 + Y/400) % 7;
-  //ets_uart_printf("Day number is %d\r\n", a);
-
-  return a;
+   return a;
 }
 //==============================================================================
 void ICACHE_FLASH_ATTR timeIncrement(void)
@@ -96,9 +94,6 @@ void ICACHE_FLASH_ATTR timeIncrement(void)
   		remoteTemp.timeData[3] = (uint8) date_time.DATE.day;
   		remoteTemp.timeData[4] = (uint8) date_time.DATE.month;
   		remoteTemp.timeData[5] = (uint8) (date_time.DATE.year - 2000);
-//  		int i;
-//  		for (i = 0; i < 6; i++) ets_uart_printf("%d ",  remoteTemp.timeData[i]);
-//  					ets_uart_printf("\r\n");
 }
 //==============================================================================
 void ICACHE_FLASH_ATTR timeUpdate(char *aPtr)
@@ -123,33 +118,21 @@ u_CONFIG configs = {
 		.cfg[1].pConfig[0].mStart = 0,
 		.cfg[1].pConfig[0].temperature = 230,
 
+	    .hwSettings.wifi.mode = STATION_MODE,
 		.hwSettings.wifi.SSID = "voodoo",
         .hwSettings.wifi.SSID_PASS = "eminem82"};
 //=============================================================================
 void ICACHE_FLASH_ATTR saveConfigs(void) {
 	int result = -1;
-	ets_uart_printf("sizeof(u_CONFIG) = %d\r\n", sizeof(u_CONFIG));
-	//uart0_tx_buffer(configs, 50);
-
-	int a = 10000;
-
-	ets_uart_printf("delay %d msec\r\n", a);
-	os_delay_us(a);
-	ets_uart_printf("Erase sector %d\r\n", a);
+	os_delay_us(100000);
 	result = spi_flash_erase_sector(PRIV_PARAM_START_SEC + PRIV_PARAM_SAVE);
-	ets_uart_printf("Erase sector result = %d\r\n", result);
-
 	result = -1;
-	os_delay_us(a);
-	ets_uart_printf("Write sector %d \r\n", a);
+	os_delay_us(100000);
 	result = spi_flash_write(
 			(PRIV_PARAM_START_SEC + PRIV_PARAM_SAVE) * SPI_FLASH_SEC_SIZE,
 			(uint32 *) &configs, sizeof(u_CONFIG));
 
-	ets_uart_printf("Write W = %d", result);
-
-
-
+	ets_uart_printf("Write W = %d\r\n", result);
 }
 
 //=============================================================================
@@ -166,7 +149,6 @@ uint16 ICACHE_FLASH_ATTR getSetTemperature()
   unsigned int aTime = date_time.TIME.hour * 60 + date_time.TIME.min;
 
   int aDayNumber = getDayOfWeek();
-  //ets_uart_printf("aDayNumber = %d\r\n", aDayNumber);
 
   unsigned char aDay;
   u_CONFIG *aPtr;
